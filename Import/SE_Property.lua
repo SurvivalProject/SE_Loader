@@ -22,6 +22,7 @@ function PropertyMeta:__newindex(Value, Index)
 		return
 	else
 	rawset(self, Value, Index)
+	end
 end
 
 PropertyMeta.__metatable = true -- No, we dont want you messing with our metatables!

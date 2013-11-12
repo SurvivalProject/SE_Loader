@@ -38,7 +38,8 @@ end
 function Event:Fire(...)
 	if not self.Disabled then 
 		for i,v in pairs(self.CallList or {}) do
-			delay(0, function() v(...) end)
+			local arglist = {...} -- What the heck lua syntax!? Y U NO PASS DEM
+			delay(0, function() v(unpack(arglist)) end)
 		end
 	end 
 end 
