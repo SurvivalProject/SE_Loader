@@ -9,6 +9,7 @@ local ObjectData = {} -- Actual object data. The objects themselves are just tab
 local ObjectChildData = {} -- Seperate table. We don't want to accidentally wipe children
 
 --TODO: ClassName on-the-fly edit
+--TODO: At normal print messages. Current are base debug messages
 
 -- ClassPropertyData has to hold a table. Contents are:
 -- ReadOnly - No write access to the data [bool]
@@ -100,7 +101,9 @@ function ObjectMetatable:__index(Index)
 
 		return Property
 	else -- Hrm. The thing we are trying to find is probably NOT a Property, but a Child!
+		print("!!childindex")
 		local Children = ObjectChildData[self]
+		print(Children)
 		return (Children and Children[Index] and Children[Index][1]) -- Return the first child if available
 	end
 end
@@ -127,19 +130,26 @@ end
 function ObjectMetatable:__newindex(Index, Value)
 	print("Object SET: "..Index.." in "..ObjectData[self].ClassName.. " value is "..tostring(Value))
 	if Index == "Parent" then
-		if Value.Type then
+		print("! parent loop, parentx = ".. Value.Type, self == System, Value.Type and (not (self == System)), Value.Type and true)
+		if Value.Type and (not (self == System)) then
+		print("! in block!?")
 			if self.Parent then
 				ObjectMetatable.RemoveChild(self, self.Parent)
-				if type(Value) == "table" and Value.Type == "SE_Class" then
-					ObjectData[self].Parent = Value
-					if ObjectChildData[Value][self.Name] == nil then
-						ObjectChildData[Value][self.Name] = {}
-					end
-					table.insert(ObjectChildData[Value][self.Name], self)
+			end
+			print(type(Value), Value.Type, "FFFFTHIS", type(Value) == "table", Value.Type == "SE_Class", (type(Value) == "table" and (Value.Type == "SE_Class")))
+			if (type(Value) == "table" and (Value.Type == "SE_Class")) then
+				ObjectData[self].Parent = Value
+				if ObjectChildData[Value] == nil then
+					ObjectChildData[Value] = {}
 				end
+				if ObjectChildData[Value][self.Name] == nil then
+					ObjectChildData[Value][self.Name] = {}
+				end
+				print("!!!childadddddddd complete")
+				table.insert(ObjectChildData[Value][self.Name], self)
 			end
 		else
-			-- Not an SE_Class
+			-- Not an SE_Class or SYSTEM
 			return
 		end
 	elseif Index == "Name" then
@@ -465,7 +475,6 @@ end
 function Create(ClassName, Parent)
 	if ClassLibrary[ClassName] then
 		local Object = {}
-
 		setmetatable(Object, ObjectMetatable)
 		ObjectData[Object] = {ClassName = ClassName} -- Reserve a table.
 		if Parent then
@@ -489,4 +498,3 @@ return CreateClass(NewClassName, O)
 end
 
 CreateClass("SE_Instance", SE_Instance)
-
