@@ -5,5 +5,5 @@ local SE_Version_Flags = {
 }
 
 loaddone = function()
-print("SE has done loading. The current version is: "..Release.."!")
+print("SE has done loading. The current version is: "..SE_Version_Flags.Version.."!")
 end 

@@ -1,4 +1,5 @@
 function Import(Name)
+	local CallFrom = "SurvivalEngine"
 	if not ( game.Lighting:FindFirstChild("Include") and game.Lighting.Include:FindFirstChild(CallFrom)) then
 		return
 	end	
