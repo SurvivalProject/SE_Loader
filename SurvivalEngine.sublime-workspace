@@ -23,6 +23,118 @@
 	},
 	"buffers":
 	[
+		{
+			"file": "Import/SE_Class.lua",
+			"settings":
+			{
+				"buffer_size": 15215,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Import/SE_Client.lua",
+			"settings":
+			{
+				"buffer_size": 625,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "DirToRBXM.lua",
+			"settings":
+			{
+				"buffer_size": 4919,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Import/SE_System.lua",
+			"settings":
+			{
+				"buffer_size": 53,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Import/SE_Enum.lua",
+			"settings":
+			{
+				"buffer_size": 942,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Import/SE_Import.lua",
+			"settings":
+			{
+				"buffer_size": 601,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Import/SE_Server.lua",
+			"settings":
+			{
+				"buffer_size": 627,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Import/SE_ReleaseData.lua",
+			"settings":
+			{
+				"buffer_size": 319,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Import/SE_Property.lua",
+			"settings":
+			{
+				"buffer_size": 1435,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Import/SE_Event.lua",
+			"settings":
+			{
+				"buffer_size": 823,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Utilities/ClientLoader.lua",
+			"settings":
+			{
+				"buffer_size": 507,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Plugins/SE_CreateMod.lua",
+			"settings":
+			{
+				"buffer_size": 1049,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Utilities/ServerLoader.lua",
+			"settings":
+			{
+				"buffer_size": 507,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "README.md",
+			"settings":
+			{
+				"buffer_size": 1779,
+				"line_ending": "Windows"
+			}
+		}
 	],
 	"build_system": "",
 	"command_palette":
@@ -52,6 +164,14 @@
 	},
 	"file_history":
 	[
+		"/C/Users/Jochem/Documents/GitHub/main/Utility scripts/ServerLoader.lua",
+		"/C/Users/Jochem/AppData/Local/Roblox/Plugins/WeldTurn.lua",
+		"/C/Users/Jochem/AppData/Local/Roblox/Plugins/SurvivalCompile.lua",
+		"/C/Users/Jochem/Documents/GitHub/main/Utility scripts/ClientLoader.lua",
+		"/C/Users/Jochem/Documents/GitHub/main/Import/DirToRBXM.lua",
+		"/C/Users/Jochem/Documents/GitHub/main/Import/Class.lua",
+		"/C/Users/Jochem/Documents/GitHub/main/Import/SE_Property.lua",
+		"/C/Users/Jochem/Documents/GitHub/main/makemodel.lua",
 		"/C/Users/Jochem/Documents/GitHub/main/SurvivalEngine.sublime-project",
 		"/C/Users/Jochem/Documents/GitHub/main - Snelkoppeling.lnk",
 		"/C/Users/Jochem/Desktop/SEloader2.lua",
@@ -68,12 +188,10 @@
 		"/C/Users/Jochem/movtest/ProjectRBXM.rbxm",
 		"/C/Users/Jochem/Documents/GitHub/DirToRBXM/example/classname.lua",
 		"/C/Users/Jochem/Downloads/history (1)",
-		"/C/Users/Jochem/AppData/Local/Roblox/Plugins/WeldTurn.lua",
 		"/C/Users/Jochem/AppData/Local/Roblox/Plugins/SurvivalAnim.lua",
 		"/C/Users/Jochem/Downloads/windowsmedia (1).asx",
 		"/C/Users/Jochem/Downloads/wsapi.exe",
 		"/C/movtest/test.lua",
-		"/C/Users/Jochem/AppData/Local/Roblox/Plugins/SurvivalCompile.lua",
 		"/C/Users/Jochem/Documents/GitHub/Classes/test/POPtest.lua",
 		"/C/Users/Jochem/Documents/GitHub/Classes/Example Code/CreateClass.lua",
 		"/E/Documents and Settings/Jochem/Application Data/Microsoft/Windows/Themes/Custom.theme",
@@ -96,6 +214,8 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"output",
+			"Property",
 			"Overwrite",
 			"ClassStates",
 			"ClassPropertyData",
@@ -128,13 +248,388 @@
 	"groups":
 	[
 		{
+			"selected": 2,
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "Import/SE_Class.lua",
+					"settings":
+					{
+						"buffer_size": 15215,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								14902,
+								14878
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua Dev/Lua.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 7230.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "Import/SE_Client.lua",
+					"settings":
+					{
+						"buffer_size": 625,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								625,
+								625
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua Dev/Lua.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "DirToRBXM.lua",
+					"settings":
+					{
+						"buffer_size": 4919,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4846,
+								4846
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua Dev/Lua.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 1211.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
 			]
 		},
 		{
+			"selected": 10,
 			"sheets":
 			[
+				{
+					"buffer": 3,
+					"file": "Import/SE_System.lua",
+					"settings":
+					{
+						"buffer_size": 53,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								53,
+								53
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua Dev/Lua.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "Import/SE_Enum.lua",
+					"settings":
+					{
+						"buffer_size": 942,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								942,
+								942
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua Dev/Lua.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "Import/SE_Import.lua",
+					"settings":
+					{
+						"buffer_size": 601,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								601,
+								601
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua Dev/Lua.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "Import/SE_Server.lua",
+					"settings":
+					{
+						"buffer_size": 627,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								627,
+								627
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua Dev/Lua.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "Import/SE_ReleaseData.lua",
+					"settings":
+					{
+						"buffer_size": 319,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								319,
+								319
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua Dev/Lua.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "Import/SE_Property.lua",
+					"settings":
+					{
+						"buffer_size": 1435,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1435,
+								1435
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua Dev/Lua.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 150.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "Import/SE_Event.lua",
+					"settings":
+					{
+						"buffer_size": 823,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								823,
+								823
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua Dev/Lua.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"file": "Utilities/ClientLoader.lua",
+					"settings":
+					{
+						"buffer_size": 507,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								507,
+								507
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua Dev/Lua.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 11,
+					"file": "Plugins/SE_CreateMod.lua",
+					"settings":
+					{
+						"buffer_size": 1049,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								729,
+								729
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua Dev/Lua.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 161.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 12,
+					"file": "Utilities/ServerLoader.lua",
+					"settings":
+					{
+						"buffer_size": 507,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								507,
+								507
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua Dev/Lua.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 13,
+					"file": "README.md",
+					"settings":
+					{
+						"buffer_size": 1779,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1327,
+								1327
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Markdown/Markdown.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
 			]
 		}
 	],
@@ -166,7 +661,7 @@
 		"cols":
 		[
 			0.0,
-			0.5,
+			0.486821705426,
 			1.0
 		],
 		"rows":

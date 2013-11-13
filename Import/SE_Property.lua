@@ -1,3 +1,5 @@
+-- TODO: Add a "property already exists" Same for classes
+
 local PropertyMeta = {}
 
 local PropertyLibrary = {}

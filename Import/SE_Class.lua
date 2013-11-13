@@ -8,9 +8,6 @@ local ClassStates = {} -- Holds class state data
 local ObjectData = {} -- Actual object data. The objects themselves are just tables, which are basically used as 'pointer' (as the table is the "index" (adress) in the ObjectData table (the memory))
 local ObjectChildData = {} -- Seperate table. We don't want to accidentally wipe children
 
---TODO: ClassName on-the-fly edit
---TODO: At normal print messages. Current are base debug messages
-
 -- ClassPropertyData has to hold a table. Contents are:
 -- ReadOnly - No write access to the data [bool]
 -- Update - Once indexed, run the method - if available Class:Update(Property) and return it's results
@@ -41,10 +38,25 @@ function ClassMetatable:__newindex(Index, Value)
 	if ClassStates[self.ClassName] and ClassStates[self.ClassName].Locked then
 		-- TODO: Debug messages
 		return
+	elseif Index == "Uncreatable" then
+		if not ClassStates[self.ClassName] then 
+			ClassStates[self.ClassName] = {}
+		end
+		ClassStates[self.ClassName].Uncreatable = true -- expected value 
+		ClassData[self]["Uncreatable"] = true -- For the reference.
+	elseif Index == "Locked" then 
+		if not ClassStates[self.ClassName] then 
+			ClassStates[self.ClassName] = {}
+		end
+		ClassStates[self.ClassName].Locked = true 
+		ClassData[self]["Locked"] = true
 	else
-		if ClassStates[self.ClassName] and ClassStates[self.ClassName].Overwrite then
+		if ClassStates[self.ClassName] and ClassStates[self.ClassName].Overwrite and not ClassStates[self.ClassName].Locked then
 			ClassData[self][Index] = Value
 		elseif not ClassData[self][Index] then
+			if ClassStates[self.ClassName] and ClassStates[self.ClassName].Locked then 
+				return -- Class is locked, cannot edit.
+			end 
 			ClassData[self][Index] = Value
 		end
 	end
@@ -473,7 +485,15 @@ function CreateClass(ClassName, ClassBase)
 end
 
 function Create(ClassName, Parent)
+	if ClassStates[ClassName] and ClassStates[ClassName].Uncreatable then 
+		return -- class is uncretable.
+	end 
 	if ClassLibrary[ClassName] then
+		if ClassStates[ClassName].CreateLimit then 
+			ClassStates[ClassName].CreateLimit = ClassStates[ClassName].CreateLimit - 1
+			if ClassStates[ClassName].CreateLimit < 0 then 
+				return  -- Class has completed it's max creatins
+			end			
 		local Object = {}
 		setmetatable(Object, ObjectMetatable)
 		ObjectData[Object] = {ClassName = ClassName} -- Reserve a table.

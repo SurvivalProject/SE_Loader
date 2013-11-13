@@ -45,3 +45,9 @@ function Event:Fire(...)
 end 
 
 RegisterNewProperty("Event", Event)
+
+function CreateEvent(Class, PropName) -- Used for backwards compatibility
+	local new = CreateProperty("Event")
+	Class[PropName] = new 
+	return new
+end 
