@@ -24,7 +24,7 @@ Button.Size = UDim2.new(0,100,0,20)
 Button.Text = "Update API"
 Button.MouseButton1Click:connect(function() 
 	if game.Lighting:FindFirstChild("Include") then 
-		Create(game.Lighting.Include.Source, game.Lighting.Include.SurvivalEngine) print("SurvivalProject: Creation completed.") end
+		Create(game.Lighting.Include.Source, game.Lighting.Include.SurvivalEngine) print("SurvivalProject: Creation completed.")
 	else 
 		print("Cannot create! Please move the ProjectRBXM file to game.Lighting!")
 	end
