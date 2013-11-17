@@ -10,11 +10,13 @@ function CreateEnum(EnumName, EnumData)
 	if type(EnumName) == "string" and type(EnumData) == "table" then
 		SE_EnumBase[EnumName] = {}
 		for i,v in pairs(EnumData) do
+			print(v)
 			local new = {Name = v, Type = "SE_Enum"}
 			setmetatable(new, EnumMetatable)
 			SE_EnumBase[EnumName][v] = new
 		end
 	end
+	print(SE_EnumBase.ShipColors and SE_EnumBase.ShipColors.Red)
 end
 
 SE_Enum = {}

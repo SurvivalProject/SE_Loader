@@ -22,9 +22,6 @@ local ClassStates = {} -- Holds class state data
 local ObjectData = {} -- Actual object data. The objects themselves are just tables, which are basically used as &apos;pointer&apos; (as the table is the &quot;index&quot; (adress) in the ObjectData table (the memory))
 local ObjectChildData = {} -- Seperate table. We don&apos;t want to accidentally wipe children
 
---TODO: ClassName on-the-fly edit
---TODO: At normal print messages. Current are base debug messages
-
 -- ClassPropertyData has to hold a table. Contents are:
 -- ReadOnly - No write access to the data [bool]
 -- Update - Once indexed, run the method - if available Class:Update(Property) and return it&apos;s results
@@ -40,7 +37,7 @@ local ObjectChildData = {} -- Seperate table. We don&apos;t want to accidentally
 local ClassMetatable = {} -- Used for both the Class and ClassData tables
 
 function ClassMetatable:__index(Index)
-	print(&quot;Index operation in a class, index is: &quot;..Index.. &quot;, classname is: &quot;..ClassData[self].ClassName)
+	--print(&quot;Index operation in a class, index is: &quot;..Index.. &quot;, classname is: &quot;..ClassData[self].ClassName)
 	-- No special rules for indexing a class property
 	-- The only reason is this redirect.
 	-- This function is here to add debug hooks (&quot;There was an index event in the Class .. ClassName .. on Index .. index&quot;)
@@ -49,16 +46,31 @@ function ClassMetatable:__index(Index)
 end
 
 function ClassMetatable:__newindex(Index, Value)
-	print(&quot;SET operation in a class, index is: &quot;..Index.. &quot;, classname is: &quot;..ClassData[self].ClassName .. &quot; value is: &quot;..tostring(Value))
+	--print(&quot;SET operation in a class, index is: &quot;..Index.. &quot;, classname is: &quot;..ClassData[self].ClassName .. &quot; value is: &quot;..tostring(Value))
 	-- Check if locked
 	-- Locked is the ultimate prevention to make sure you don&apos;t edit the classes once you have created them
 	if ClassStates[self.ClassName] and ClassStates[self.ClassName].Locked then
 		-- TODO: Debug messages
 		return
+	elseif Index == &quot;Uncreatable&quot; then
+		if not ClassStates[self.ClassName] then 
+			ClassStates[self.ClassName] = {}
+		end
+		ClassStates[self.ClassName].Uncreatable = true -- expected value 
+		ClassData[self][&quot;Uncreatable&quot;] = true -- For the reference.
+	elseif Index == &quot;Locked&quot; then 
+		if not ClassStates[self.ClassName] then 
+			ClassStates[self.ClassName] = {}
+		end
+		ClassStates[self.ClassName].Locked = true 
+		ClassData[self][&quot;Locked&quot;] = true
 	else
-		if ClassStates[self.ClassName] and ClassStates[self.ClassName].Overwrite then
+		if ClassStates[self.ClassName] and ClassStates[self.ClassName].Overwrite and not ClassStates[self.ClassName].Locked then
 			ClassData[self][Index] = Value
 		elseif not ClassData[self][Index] then
+			if ClassStates[self.ClassName] and ClassStates[self.ClassName].Locked then 
+				return -- Class is locked, cannot edit.
+			end 
 			ClassData[self][Index] = Value
 		end
 	end
@@ -78,7 +90,7 @@ end
 
 -- Function run on x[y] when the index y is nil in x
 function ObjectMetatable:__index(Index)
-	print(&quot;Object index: &quot;..Index..&quot; in &quot;..ObjectData[self].ClassName)
+	--print(&quot;Object index: &quot;..Index..&quot; in &quot;..ObjectData[self].ClassName)
 	-- Return either the linked object data (ObjectData) or try to get the &quot;default&quot; value from the Class data. (This index operation finds the dafault in the next)
 	local ClassName = ObjectData[self].ClassName
 	local Property = ObjectData[self][Index] or ClassLibrary[ClassName][Index]
@@ -115,9 +127,9 @@ function ObjectMetatable:__index(Index)
 
 		return Property
 	else -- Hrm. The thing we are trying to find is probably NOT a Property, but a Child!
-		print(&quot;!!childindex&quot;)
+		--print(&quot;!!childindex&quot;)
 		local Children = ObjectChildData[self]
-		print(Children)
+		--print(Children)
 		return (Children and Children[Index] and Children[Index][1]) -- Return the first child if available
 	end
 end
@@ -142,15 +154,18 @@ end
 
 -- Function run on x[y] = z when the index y is nil in x
 function ObjectMetatable:__newindex(Index, Value)
-	print(&quot;Object SET: &quot;..Index..&quot; in &quot;..ObjectData[self].ClassName.. &quot; value is &quot;..tostring(Value))
+	if Value == nil then
+		return
+	end
+	--print(&quot;Object SET: &quot;..Index..&quot; in &quot;..ObjectData[self].ClassName.. &quot; value is &quot;..tostring(Value))
 	if Index == &quot;Parent&quot; then
-		print(&quot;! parent loop, parentx = &quot;.. Value.Type, self == System, Value.Type and (not (self == System)), Value.Type and true)
+		--print(&quot;! parent loop, parentx = &quot;.. Value.Type, self == System, Value.Type and (not (self == System)), Value.Type and true)
 		if Value.Type and (not (self == System)) then
-		print(&quot;! in block!?&quot;)
+		--print(&quot;! in block!?&quot;)
 			if self.Parent then
 				ObjectMetatable.RemoveChild(self, self.Parent)
 			end
-			print(type(Value), Value.Type, &quot;FFFFTHIS&quot;, type(Value) == &quot;table&quot;, Value.Type == &quot;SE_Class&quot;, (type(Value) == &quot;table&quot; and (Value.Type == &quot;SE_Class&quot;)))
+			--print(type(Value), Value.Type, &quot;FFFFTHIS&quot;, type(Value) == &quot;table&quot;, Value.Type == &quot;SE_Class&quot;, (type(Value) == &quot;table&quot; and (Value.Type == &quot;SE_Class&quot;)))
 			if (type(Value) == &quot;table&quot; and (Value.Type == &quot;SE_Class&quot;)) then
 				ObjectData[self].Parent = Value
 				if ObjectChildData[Value] == nil then
@@ -159,7 +174,7 @@ function ObjectMetatable:__newindex(Index, Value)
 				if ObjectChildData[Value][self.Name] == nil then
 					ObjectChildData[Value][self.Name] = {}
 				end
-				print(&quot;!!!childadddddddd complete&quot;)
+				--print(&quot;!!!childadddddddd complete&quot;)
 				table.insert(ObjectChildData[Value][self.Name], self)
 			end
 		else
@@ -192,7 +207,7 @@ function ObjectMetatable:__newindex(Index, Value)
 		local PropRoot = ClassMetatable.GetPropertyRoot(ClassLibrary[self.ClassName], Value)
 		local Block = ClassPropertyData[PropRoot] and ClassPropertyData[PropRoot][Value] and not ClassPropertyData[PropRoot][Value].ReadOnly
 		if not Block  then
-			print(&quot;passed test, set&quot;)
+			--print(&quot;passed test, set&quot;)
 			ObjectData[self][Index] = Value
 		end
 	end
@@ -392,11 +407,14 @@ function SE_Instance:FindFirstChild(name, recursive)
 end
 
 function SE_Instance:GetChildren()
+	--print(&quot;Call GC&quot;)
 	local ChildList = {}
+	if ObjectChildData[self] then 
 	for ChildName,Children in pairs(ObjectChildData[self]) do
 		for i, Child in pairs(Children) do
 			table.insert(ChildList, Child)
 		end
+	end
 	end
 	return ChildList
 end
@@ -487,10 +505,19 @@ function CreateClass(ClassName, ClassBase)
 end
 
 function Create(ClassName, Parent)
+	if ClassStates[ClassName] and ClassStates[ClassName].Uncreatable then 
+		return -- class is uncretable.
+	end 
 	if ClassLibrary[ClassName] then
+		if ClassStates[ClassName] and ClassStates[ClassName].CreateLimit then 
+			ClassStates[ClassName].CreateLimit = ClassStates[ClassName].CreateLimit - 1
+			if ClassStates[ClassName].CreateLimit &lt; 0 then 
+				return  -- Class has completed it&apos;s max creatins
+			end			
+		end
 		local Object = {}
 		setmetatable(Object, ObjectMetatable)
-		ObjectData[Object] = {ClassName = ClassName} -- Reserve a table.
+		ObjectData[Object] = {ClassName = ClassName, Name = ClassName} -- Reserve a table.
 		if Parent then
 			Object.Parent = Parent
 		end
@@ -551,11 +578,13 @@ function CreateEnum(EnumName, EnumData)
 	if type(EnumName) == &quot;string&quot; and type(EnumData) == &quot;table&quot; then
 		SE_EnumBase[EnumName] = {}
 		for i,v in pairs(EnumData) do
+			print(v)
 			local new = {Name = v, Type = &quot;SE_Enum&quot;}
 			setmetatable(new, EnumMetatable)
 			SE_EnumBase[EnumName][v] = new
 		end
 	end
+	print(SE_EnumBase.ShipColors and SE_EnumBase.ShipColors.Red)
 end
 
 SE_Enum = {}
@@ -627,12 +656,19 @@ end
 function Event:Fire(...)
 	if not self.Disabled then 
 		for i,v in pairs(self.CallList or {}) do
-			delay(0, function() v(...) end)
+			local arglist = {...} -- What the heck lua syntax!? Y U NO PASS DEM
+			delay(0, function() v(unpack(arglist)) end)
 		end
 	end 
 end 
 
-RegisterNewProperty(&quot;Event&quot;, Event)</ProtectedString>
+RegisterNewProperty(&quot;Event&quot;, Event)
+
+function CreateEvent(Class, PropName) -- Used for backwards compatibility
+	local new = CreateProperty(&quot;Event&quot;)
+	Class[PropName] = new 
+	return new
+end </ProtectedString>
 			</Properties>
 		</Item><Item class="Script">
 			<Properties>
@@ -670,7 +706,9 @@ end</ProtectedString>
 		</Item><Item class="Script">
 			<Properties>
 <string name="Name">SE_Property</string>
-<ProtectedString name="Source">local PropertyMeta = {}
+<ProtectedString name="Source">-- TODO: Add a &quot;property already exists&quot; Same for classes
+
+local PropertyMeta = {}
 
 local PropertyLibrary = {}
 
@@ -694,6 +732,7 @@ function PropertyMeta:__newindex(Value, Index)
 		return
 	else
 	rawset(self, Value, Index)
+	end
 end
 
 PropertyMeta.__metatable = true -- No, we dont want you messing with our metatables!

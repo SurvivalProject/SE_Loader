@@ -23,7 +23,7 @@ local ObjectChildData = {} -- Seperate table. We don't want to accidentally wipe
 local ClassMetatable = {} -- Used for both the Class and ClassData tables
 
 function ClassMetatable:__index(Index)
-	print("Index operation in a class, index is: "..Index.. ", classname is: "..ClassData[self].ClassName)
+	--print("Index operation in a class, index is: "..Index.. ", classname is: "..ClassData[self].ClassName)
 	-- No special rules for indexing a class property
 	-- The only reason is this redirect.
 	-- This function is here to add debug hooks ("There was an index event in the Class .. ClassName .. on Index .. index")
@@ -32,7 +32,7 @@ function ClassMetatable:__index(Index)
 end
 
 function ClassMetatable:__newindex(Index, Value)
-	print("SET operation in a class, index is: "..Index.. ", classname is: "..ClassData[self].ClassName .. " value is: "..tostring(Value))
+	--print("SET operation in a class, index is: "..Index.. ", classname is: "..ClassData[self].ClassName .. " value is: "..tostring(Value))
 	-- Check if locked
 	-- Locked is the ultimate prevention to make sure you don't edit the classes once you have created them
 	if ClassStates[self.ClassName] and ClassStates[self.ClassName].Locked then
@@ -76,7 +76,7 @@ end
 
 -- Function run on x[y] when the index y is nil in x
 function ObjectMetatable:__index(Index)
-	print("Object index: "..Index.." in "..ObjectData[self].ClassName)
+	--print("Object index: "..Index.." in "..ObjectData[self].ClassName)
 	-- Return either the linked object data (ObjectData) or try to get the "default" value from the Class data. (This index operation finds the dafault in the next)
 	local ClassName = ObjectData[self].ClassName
 	local Property = ObjectData[self][Index] or ClassLibrary[ClassName][Index]
@@ -113,9 +113,9 @@ function ObjectMetatable:__index(Index)
 
 		return Property
 	else -- Hrm. The thing we are trying to find is probably NOT a Property, but a Child!
-		print("!!childindex")
+		--print("!!childindex")
 		local Children = ObjectChildData[self]
-		print(Children)
+		--print(Children)
 		return (Children and Children[Index] and Children[Index][1]) -- Return the first child if available
 	end
 end
@@ -140,15 +140,18 @@ end
 
 -- Function run on x[y] = z when the index y is nil in x
 function ObjectMetatable:__newindex(Index, Value)
-	print("Object SET: "..Index.." in "..ObjectData[self].ClassName.. " value is "..tostring(Value))
+	if Value == nil then
+		return
+	end
+	--print("Object SET: "..Index.." in "..ObjectData[self].ClassName.. " value is "..tostring(Value))
 	if Index == "Parent" then
-		print("! parent loop, parentx = ".. Value.Type, self == System, Value.Type and (not (self == System)), Value.Type and true)
+		--print("! parent loop, parentx = ".. Value.Type, self == System, Value.Type and (not (self == System)), Value.Type and true)
 		if Value.Type and (not (self == System)) then
-		print("! in block!?")
+		--print("! in block!?")
 			if self.Parent then
 				ObjectMetatable.RemoveChild(self, self.Parent)
 			end
-			print(type(Value), Value.Type, "FFFFTHIS", type(Value) == "table", Value.Type == "SE_Class", (type(Value) == "table" and (Value.Type == "SE_Class")))
+			--print(type(Value), Value.Type, "FFFFTHIS", type(Value) == "table", Value.Type == "SE_Class", (type(Value) == "table" and (Value.Type == "SE_Class")))
 			if (type(Value) == "table" and (Value.Type == "SE_Class")) then
 				ObjectData[self].Parent = Value
 				if ObjectChildData[Value] == nil then
@@ -157,7 +160,7 @@ function ObjectMetatable:__newindex(Index, Value)
 				if ObjectChildData[Value][self.Name] == nil then
 					ObjectChildData[Value][self.Name] = {}
 				end
-				print("!!!childadddddddd complete")
+				--print("!!!childadddddddd complete")
 				table.insert(ObjectChildData[Value][self.Name], self)
 			end
 		else
@@ -190,7 +193,7 @@ function ObjectMetatable:__newindex(Index, Value)
 		local PropRoot = ClassMetatable.GetPropertyRoot(ClassLibrary[self.ClassName], Value)
 		local Block = ClassPropertyData[PropRoot] and ClassPropertyData[PropRoot][Value] and not ClassPropertyData[PropRoot][Value].ReadOnly
 		if not Block  then
-			print("passed test, set")
+			--print("passed test, set")
 			ObjectData[self][Index] = Value
 		end
 	end
@@ -390,11 +393,14 @@ function SE_Instance:FindFirstChild(name, recursive)
 end
 
 function SE_Instance:GetChildren()
+	--print("Call GC")
 	local ChildList = {}
+	if ObjectChildData[self] then 
 	for ChildName,Children in pairs(ObjectChildData[self]) do
 		for i, Child in pairs(Children) do
 			table.insert(ChildList, Child)
 		end
+	end
 	end
 	return ChildList
 end
@@ -489,14 +495,15 @@ function Create(ClassName, Parent)
 		return -- class is uncretable.
 	end 
 	if ClassLibrary[ClassName] then
-		if ClassStates[ClassName].CreateLimit then 
+		if ClassStates[ClassName] and ClassStates[ClassName].CreateLimit then 
 			ClassStates[ClassName].CreateLimit = ClassStates[ClassName].CreateLimit - 1
 			if ClassStates[ClassName].CreateLimit < 0 then 
 				return  -- Class has completed it's max creatins
 			end			
+		end
 		local Object = {}
 		setmetatable(Object, ObjectMetatable)
-		ObjectData[Object] = {ClassName = ClassName} -- Reserve a table.
+		ObjectData[Object] = {ClassName = ClassName, Name = ClassName} -- Reserve a table.
 		if Parent then
 			Object.Parent = Parent
 		end
