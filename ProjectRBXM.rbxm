@@ -675,60 +675,39 @@ end </ProtectedString>
 <string name="Name">SE_Import</string>
 <ProtectedString name="Source">function Import(Name)
 	local CallFrom = &quot;SurvivalEngine&quot;
-	if not ( game.Lighting:FindFirstChild(&quot;Include&quot;) and game.Lighting.Include:FindFirstChild(CallFrom)) then
-		return
-	end	
-
-	local function GetSearchRootLighting()
-		local root = game.Lighting.Include[CallFrom]
-		local find = Name
-		for match in string.gmatch(Name, &quot;[^/]+&quot;) do
-			Name = match
-			root = root:FindFirstChild(match)
-			if not root then
-				return
-			end
-		end
-		return root
-	end
-
-	local function GetSearchRootServerStorage()
-		local root = game.ServerStorage.Include[CallFrom]
-		local find = Name
-		for match in string.gmatch(Name, &quot;[^/]+&quot;) do
-			Name = match
-			root = root:FindFirstChild(match)
-			if not root then
-				return
-			end
-		end
-		return root
-	end
-
-	local function GetSearchRootServerScriptService()
-		local root = game.ServerScriptService.Include[CallFrom]
-		local find = Name
-		for match in string.gmatch(Name, &quot;[^/]+&quot;) do
-			Name = match
-			root = root:FindFirstChild(match)
-			if not root then
-				return
-			end
-		end
-		return root
-	end
 		
-	local root = GetSearchRootLighting()
-	if not root then
-		root = GetSearchRootServerStorage()
+	local function Spider(root, Name)
+		if not (root:FindFirstChild(&quot;Include&quot;) and root.Include:FindFirstChild(CallFrom)) then
+			return
+		end			
+		local find = Name
+		-- Start name finding loop &quot;Class/Client/Game/Player&quot;
+		for match in string.gmatch(Name, &quot;[^/]+&quot;) do 
+			Name = match
+			root = root.Include[CallFrom]:FindFirstChild(match)
+			if not root then
+				return
+			end
+		end
+		return root
 	end
-	if not root then
-		root = GetSearchRootServerScriptService()
+
+	local Spy = {game.Lighting, game.ServerScriptService, game.ServerStorage}
+	local root 
+	for _, SpyDir in pairs(Spy) do
+		print(SpyDir.Name)
+		root = Spider(SpyDir, Name)
+		print(root)
+		if root then
+			break
+		end
 	end
-	
+	print(root, &quot;loader&quot;)
+
 	if root then 
 		local Function, Data = loadstring(root.Value)
 		if Data then 
+			print(&quot;ERR: &quot;..Data)
 			return
 		end
 		return Function()
