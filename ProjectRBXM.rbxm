@@ -584,7 +584,6 @@ function CreateEnum(EnumName, EnumData)
 			SE_EnumBase[EnumName][v] = new
 		end
 	end
-	print(SE_EnumBase.ShipColors and SE_EnumBase.ShipColors.Red)
 end
 
 SE_Enum = {}
@@ -618,8 +617,6 @@ setmetatable(SE_Enum, Meta)</ProtectedString>
 <string name="Name">SE_Event</string>
 <ProtectedString name="Source">local Event = {} 
 
-
-
 Event.Disabled = false 
 
 function Event:connect(func)
@@ -635,7 +632,7 @@ function Event:connect(func)
 			end 
 		end 
 	end 
-	table.inset(self.CallList, func)
+	table.insert(self.CallList, func)
 	return Signal
 end 
 

@@ -16,7 +16,6 @@ function CreateEnum(EnumName, EnumData)
 			SE_EnumBase[EnumName][v] = new
 		end
 	end
-	print(SE_EnumBase.ShipColors and SE_EnumBase.ShipColors.Red)
 end
 
 SE_Enum = {}

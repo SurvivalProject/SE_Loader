@@ -27,7 +27,7 @@
 			"file": "Import/SE_Class.lua",
 			"settings":
 			{
-				"buffer_size": 16086,
+				"buffer_size": 16252,
 				"line_ending": "Windows"
 			}
 		},
@@ -64,10 +64,26 @@
 			}
 		},
 		{
+			"file": "Utilities/ClientLoader.lua",
+			"settings":
+			{
+				"buffer_size": 1280,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Import/SE_Enum.lua",
+			"settings":
+			{
+				"buffer_size": 1016,
+				"line_ending": "Windows"
+			}
+		},
+		{
 			"file": "Plugins/SE_CreateMod.lua",
 			"settings":
 			{
-				"buffer_size": 1049,
+				"buffer_size": 2459,
 				"line_ending": "Windows"
 			}
 		},
@@ -75,7 +91,15 @@
 			"file": "Utilities/ServerLoader.lua",
 			"settings":
 			{
-				"buffer_size": 507,
+				"buffer_size": 1280,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Import/SE_Import.lua",
+			"settings":
+			{
+				"buffer_size": 854,
 				"line_ending": "Windows"
 			}
 		},
@@ -207,7 +231,6 @@
 	"groups":
 	[
 		{
-			"selected": 0,
 			"sheets":
 			[
 				{
@@ -215,15 +238,15 @@
 					"file": "Import/SE_Class.lua",
 					"settings":
 					{
-						"buffer_size": 16086,
+						"buffer_size": 16252,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								15541,
-								15541
+								0,
+								16252
 							]
 						],
 						"settings":
@@ -232,7 +255,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 5823.0,
+						"translation.y": 7173.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -303,7 +326,7 @@
 						[
 							[
 								976,
-								976
+								0
 							]
 						],
 						"settings":
@@ -312,7 +335,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 450.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -320,7 +343,7 @@
 			]
 		},
 		{
-			"selected": 0,
+			"selected": 5,
 			"sheets":
 			[
 				{
@@ -352,18 +375,18 @@
 				},
 				{
 					"buffer": 5,
-					"file": "Plugins/SE_CreateMod.lua",
+					"file": "Utilities/ClientLoader.lua",
 					"settings":
 					{
-						"buffer_size": 1049,
+						"buffer_size": 1280,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								729,
-								729
+								1280,
+								0
 							]
 						],
 						"settings":
@@ -372,25 +395,25 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 161.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 6,
-					"file": "Utilities/ServerLoader.lua",
+					"file": "Import/SE_Enum.lua",
 					"settings":
 					{
-						"buffer_size": 507,
+						"buffer_size": 1016,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								507,
-								507
+								691,
+								691
 							]
 						],
 						"settings":
@@ -406,6 +429,87 @@
 				},
 				{
 					"buffer": 7,
+					"file": "Plugins/SE_CreateMod.lua",
+					"settings":
+					{
+						"buffer_size": 2459,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua Dev/Lua.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 161.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "Utilities/ServerLoader.lua",
+					"settings":
+					{
+						"buffer_size": 1280,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1280,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua Dev/Lua.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "Import/SE_Import.lua",
+					"settings":
+					{
+						"buffer_size": 854,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								854,
+								854
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua Dev/Lua.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 10,
 					"file": "README.md",
 					"settings":
 					{

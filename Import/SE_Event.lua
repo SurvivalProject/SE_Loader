@@ -1,7 +1,5 @@
 local Event = {} 
 
-
-
 Event.Disabled = false 
 
 function Event:connect(func)
@@ -17,7 +15,7 @@ function Event:connect(func)
 			end 
 		end 
 	end 
-	table.inset(self.CallList, func)
+	table.insert(self.CallList, func)
 	return Signal
 end 
 
