@@ -8,7 +8,7 @@ local file_accept = {lua = true, txt = true}
 assert(lfs, "LuaFileSystem could not be loaded! Pleaseuse LuaRocks to install LuaFileSystem! (Or use Lua for Windows)")
 assert(_xml, "LuaXML could not be loaded! Please use LuaRocks to install LuaXML (Or use Lua for Windows)!")
 
-local file = io.open(".ProjectRBXM.rbxm", "w")
+local file = io.open("ProjectRBXM.rbxm", "w")
 assert(file, "Cannot open the file - create it manually to fix?")
 
 print("LFS - LuaXML - file initiated. Creating a rbxm file from the Import directory.")
