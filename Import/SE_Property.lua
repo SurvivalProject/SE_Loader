@@ -30,7 +30,7 @@ end
 PropertyMeta.__metatable = true -- No, we dont want you messing with our metatables!
 
 function RegisterNewProperty(PropertyName, PropertyData)
-	PropertyData.Type = "Property"
+	PropertyData.__se_type = "Property"
 	PropertyData.PropertyName = PropertyName
 	if not PropertyData.Extends and PropertyName ~= "DefaultProperty" then
 		PropertyData.Extends = "DefaultProperty"
@@ -47,6 +47,6 @@ RegisterNewProperty("DefaultProperty", DefaultProperty)
 function CreateProperty(PropertyName)
 	local Property = {}
 	Property.PropertyName = PropertyName
-	Property.Type = "Property"
+	Property.__se_type = "Property"
 	return setmetatable(Property, PropertyMeta)
 end

@@ -11,7 +11,7 @@ function CreateEnum(EnumName, EnumData)
 		SE_EnumBase[EnumName] = {}
 		for i,v in pairs(EnumData) do
 			print(v)
-			local new = {Name = v, Type = "SE_Enum"}
+			local new = {Name = v, __se_type= "SE_Enum"}
 			setmetatable(new, EnumMetatable)
 			SE_EnumBase[EnumName][v] = new
 		end

@@ -85,10 +85,10 @@ function ObjectMetatable:__index(Index)
 		local Class = ClassLibrary[ClassName]
 		local PropertyClass = ClassMetatable.GetPropertyRoot(Class, Index)
 		if type(Property) == "table" and ObjectData[self][Index] == nil and Index ~= "Parent" then
-			if Property.Type == "SE_Instance" then
+			if Property.__se_type == "SE_Instance" then
 				local ClassName = Property.ClassName
 				ObjectData[self][Index] = Create( ClassName ) --
-			elseif Property.Type == "Property" then
+			elseif Property.__se_type == "Property" then
 				ObjectData[self][Index] = Property:Clone()
 			else
 				-- Its a regular table. 2 cases: filled (list-like) or empty
@@ -146,13 +146,13 @@ function ObjectMetatable:__newindex(Index, Value)
 	--print("Object SET: "..Index.." in "..ObjectData[self].ClassName.. " value is "..tostring(Value))
 	if Index == "Parent" then
 		--print("! parent loop, parentx = ".. Value.Type, self == System, Value.Type and (not (self == System)), Value.Type and true)
-		if Value.Type and (not (self == System)) then
+		if Value.__se_type and (not (self == System)) then
 		--print("! in block!?")
 			if self.Parent then
 				ObjectMetatable.RemoveChild(self, self.Parent)
 			end
 			--print(type(Value), Value.Type, "FFFFTHIS", type(Value) == "table", Value.Type == "SE_Class", (type(Value) == "table" and (Value.Type == "SE_Class")))
-			if (type(Value) == "table" and (Value.Type == "SE_Class")) then
+			if (type(Value) == "table" and (Value.__se_type == "SE_Class")) then
 				ObjectData[self].Parent = Value
 				if ObjectChildData[Value] == nil then
 					ObjectChildData[Value] = {}
@@ -185,7 +185,7 @@ function ObjectMetatable:__newindex(Index, Value)
 				ObjectData[self][Index] = Value.ClassName
 			end
 		end
-	elseif Index == "ClassName" or Index == "Type" then
+	elseif Index == "ClassName" or Index == "__se_type" then
 		-- No. Just no. Watcha doing, changing the classname? Hax.
 		return -- Get out of here, right now
 	else
@@ -348,7 +348,7 @@ SE_Instance.Parent = nil
 SE_Instance.ClassName = "SE_Instance"
 SE_Instance.Archivable = true
 SE_Instance.Extends = nil
-SE_Instance.Type = "SE_Instance"
+SE_Instance.__se_type = "SE_Instance"
 
 function SE_Instance:ClearAllChildren()
 	for i,v in pairs(SE_Instance:GetChilden()) do
@@ -482,7 +482,7 @@ function CreateClass(ClassName, ClassBase)
 		ClassBase[i] = nil
 	end
 	ClassData[Class] = DataTable
-	DataTable.Type = "SE_Class"
+	DataTable.__se_type = "SE_Class"
 	ClassData[Class].ClassName = ClassName
 	setmetatable(Class, ClassMetatable)
 	Class.__metatable = true
