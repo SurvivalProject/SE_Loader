@@ -1,124 +1,95 @@
--- DirToRBX --
+local _time = os.clock()
 
--- This program uses normal windows (!!) commands to get a list of files and directories (If mac has a kind of "dir" program change the commands in GetDirectoriesInDir and GetFilesInDir)
--- This is done by running the program "dir"
--- dir "a" /b return a list of all files and directories in "a"
--- dir "a" /b /ad returns a list of all DIRECTORIES in "a" (this filter is done by the /ad)
--- dir "a" /b /a-d  reutrns a list of all FILES in "a" (the - means "not" so filter all "not directories" out - the files!)
+local lfs = require "lfs"
+local _xml = require "LuaXML"
 
-print("Dir>RBXM started up. You can find a DefaultDir variable in the file: change that to your default project directory to make it easier to run this .lua script")
-print("You can also use 4 optional options")
-print("lua dirmirror.lua input_directory output_directory output_name classname")
-print("The input_directory is the directory where your project is. Example: C:\MyRobloxProject. This can be changed in this file by changing the DefaultDir variable")
-print("The output_directory is by default the input_directory. You can also define this output directory: it's the place where the .rbxm file is created.")
-print("The output_name marks the name of the output and also the name of the model which is created (the root model).")
-print("The classname option can be used to change the classname of the generated objects. By default, this is Script. It can also generate localscripts.")
-print("Example use from command bar;")
-print("lua dirmirror.lua C:/MyProject C:/Documents/Roblox/Project MyProject LocalScript")
+local file_accept = {lua = true, txt = true}
 
-local DefaultDir = ".\\Import" -- Change this to project file (. is the directory the .lua file is in!!)
+assert(lfs, "LuaFileSystem could not be loaded! Pleaseuse LuaRocks to install LuaFileSystem! (Or use Lua for Windows)")
+assert(_xml, "LuaXML could not be loaded! Please use LuaRocks to install LuaXML (Or use Lua for Windows)!")
 
-local input = {...}
+local file = io.open(".ProjectRBXM.rbxm", "w")
+assert(file, "Cannot open the file - create it manually to fix?")
 
-local dir = input[1] or DefaultDir
-local output = input[2] or "."
-local output_name = input[3] or "ProjectRBXM"
-local classname = input[4] or "Script"
+print("LFS - LuaXML - file initiated. Creating a rbxm file from the Import directory.")
 
-print(input[1], input[2])
+local rbxm = xml.new("roblox")
+rbxm["xmlns:xmime"]="http://www.w3.org/2005/05/xmlmime"
+rbxm["version"]="4"
+rbxm["xsi:noNameSpaceSchemaLocation"]="http://www.roblox.com/roblox.xsd"
+rbxm["xmlns:xsi"]="http://www.w3.org/2001/XMLSchema-instance"
 
-local cmd_run = io.popen
-
-local xml_sub = {{"&", "&amp;"}, {">", "&gt;"}, {"<", "&lt;"}, {"\'", "&apos;"}, {"\"", "&quot;"}}  -- QQ why
--- Note: this table here is constructed not as [which_sub] = sub_to, because the & has to be subbed first (to make sure that
--- it doesn't conflict with the & in the other subs!). Like this we can control the sequence.
-
-local model = io.open(output:gsub("/", function() if not got then got = true return "\\" else return "/" end end).. "/"..output_name..".rbxm", "w+")
-
-
-function GetLines(file) -- Lol dir returns a file... not a string :/
-	local list = {}
-	for match in file:lines() do
-		table.insert(list, match)
-	end
-	return list
+function scandir(path) -- returns a table with {directories = directory_list, file = lua_filelist} (lua files are "script files")
+print("----")
+print("scan "..path)
+local out = {directories = {}, file = {}}
+for dirname in lfs.dir(path) do
+if lfs.attributes(path .. "\\"..dirname).mode == "file" and file_accept[dirname:sub(dirname:len()-2, dirname:len())] then
+print("script source found: "..dirname)
+table.insert(out.file, path.."\\"..dirname)
+elseif lfs.attributes(path .. "\\"..dirname).mode == "directory" and dirname ~= "." and dirname ~= ".." then
+print("directory found: "..dirname)
+table.insert(out.directories, path.."\\"..dirname)
+end
+end
+return out
 end
 
-s = "\""
-function GetDirectoriesInDir(dir) -- returns all directories in dir
-local got = false
-dirfix = dir:gsub("/", "\\")
-print("CMD RUN: ".."dir ".. "\""..dirfix.. "\"".." /b /ad")
-	return GetLines(cmd_run("dir ".. "\""..dirfix.. "\"".." /b /ad"))
+function append_script(root, scriptname, scriptsource)
+print("Add new script: "..scriptname)
+local new = root:append("Item")
+new["class"] = "Script" -- Local Script support should be added here (to immediately see which scripts are "client", and which are "Server"
+local properties = new:append("Properties")
+local source = properties:append("ProtectedString")
+local name = properties:append("string")
+source["name"] = "Source"
+source[1] = scriptsource
+name["name"] = "Name"
+name[1] = scriptname
 end
 
-function GetFilesInDir(dir)
-dirfix =  dir:gsub("/", "\\")
-print("CMD RUN: ".."dir ".. "\""..dirfix.. "\"".." \\b \\a-d")
-	return GetLines(cmd_run("dir ".. "\""..dirfix.. "\"".." /b /a-d"))
+function append_model(root, modname)
+print("Add new model: "..modname)
+local new = root:append("Item")
+new["class"] = "Model"
+local properties = new:append("Properties")
+local name = properties:append("string")
+name["name"] = "Name"
+name[1] = modname
+return new
 end
 
--- Write default header to the model file
-
-function GetModelXML(name)
-return [[
-<Item class="Model">
-		<Properties>]] .. "\n<string name=\"Name\">"..name .. "</string>\n"..[[
-		</Properties>
-]]
+function make(xml_tag_current, dir_root)
+local new = scandir(dir_root)
+print("----")
+for _,name in pairs(new.file) do
+local open = io.open(name)
+local text = open:read("*a")
+local act_name = name:match("\\([^.\\]*)%.")
+append_script(xml_tag_current, act_name, text)
+end
+for _, dirname in pairs(new.directories) do
+local new_root = append_model(xml_tag_current, dirname:match("\\([^\\.]*)$"))
+make(new_root, dirname)
+end
 end
 
-function GetScriptXML(name, source)
-local source = source
-for i,v in pairs(xml_sub) do -- sub i with v
-source = source:gsub(v[1],v[2])
-end
-return [[<Item class="]]..classname..[[">
-			<Properties>]].."\n<string name=\"Name\">"..name.."</string>\n"..[[<ProtectedString name="Source">]] ..source..[[
-</ProtectedString>
-			</Properties>
-		</Item>]]
-end
+-- Add "Include"
+local true_root = append_model(rbxm, "Include")
+append_model(true_root, "SurvivalEngine")
+local user_root = append_model(true_root, "Source")
+-- check what to load, arg[0] or lfs.currentdir()
 
-model:write([[<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
-	<External>null</External>
-	<External>nil</External>
-	]])
-
-
--- Actual nonsense starts here --
-
-function Recurse(where, dirname)
-	print("Searching "..where.. " for directories and .lua files!")
-	print("Adding DIR "..dirname .. " to XML")
-	model:write(GetModelXML("Include"))
-	model:write(GetModelXML("Source"))
-	print("Added succesfully to the xml file")
-	local dir_list = GetDirectoriesInDir(where)
-		for i,v in pairs(dir_list) do
-			Recurse(where.."/"..v, v)
-		end
-	local file_list = GetFilesInDir(where)
-	for i,v in pairs(file_list) do
-		if not (v:sub(v:len()-3, v:len()) == ".lua") then -- remove all non lua files
-			file_list[i] = nil
-		end
-	end
-	for i,v in pairs(file_list) do
-		print("Lua file found: "..where.."/"..v)
-		local file = io.open(where.."/"..v, "r")
-		local source = file:read("*a")
-		local name = v:match("(.*)%.")
-		model:write(GetScriptXML(name, source))
-		print("Added succesfully to the xml file")
-	end
-	model:write("\n</Item>")
-	model:write(GetModelXML("SurvivalEngine"))
-	model:write("\n</Item>")
-	model:write("\n</Item>")
+if arg[0] ~= "DirToRBXM.lua" then
+print("---(Call type is from normal Lua call)---")
+local file_dir = arg[0]:match("(.*)\\DirToRBXM.lua")
+make(user_root, file_dir.."\\Import")
+else
+print("---(Call type is other - trace current directory normally)---")
+make(user_root, ".\\Import")
 end
 
-Recurse(DefaultDir, output_name)
-model:write("\n</roblox>")
-print("Creation complete! You can find the file in: "..output)
+
+file:write(rbxm:str())
+print("ProjectRBXM.rbxm file generated. Hit any key to quit... (took: "..math.floor((os.clock() - _time)*1000 + 0.5).. " ms)")
 io.read()

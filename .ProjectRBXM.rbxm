@@ -1,0 +1,826 @@
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" version="4" xsi:noNameSpaceSchemaLocation="http://www.roblox.com/roblox.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Item class="Model">
+    <Properties>
+      <string name="Name">Include</string>
+    </Properties>
+    <Item class="Model">
+      <Properties>
+        <string name="Name">SurvivalEngine</string>
+      </Properties>
+    </Item>
+    <Item class="Model">
+      <Properties>
+        <string name="Name">Source</string>
+      </Properties>
+      <Item class="Script">
+        <Properties>
+          <ProtectedString name="Source">-- Set up initial registers
+-- Object metatable will store all functions which have to do with created objects
+local ObjectMetatable = {} --newproxy(true); Newproxy&apos;s ain&apos;t gonna work for now.
+local ClassPropertyData = {} -- Holds &quot;flags&quot; on access properties
+local ClassData = {} -- Holds actual Class Data
+local ClassLibrary = {} -- Holds the classes
+local ClassStates = {} -- Holds class state data
+local ObjectData = {} -- Actual object data. The objects themselves are just tables, which are basically used as &apos;pointer&apos; (as the table is the &quot;index&quot; (adress) in the ObjectData table (the memory))
+local ObjectChildData = {} -- Seperate table. We don&apos;t want to accidentally wipe children
+
+-- ClassPropertyData has to hold a table. Contents are:
+-- ReadOnly - No write access to the data [bool]
+-- Update - Once indexed, run the method - if available Class:Update(Property) and return it&apos;s results
+
+-- ClassStates can have:
+-- Uncreatable: If true, the class cannot be created. The Create function will error
+-- Locked: A lock is final. Once Locked is set to true, the class cannot be edited in any way.
+-- CreateLimit: This is a number. After this number is &lt;= 0, the class will be Uncreateable
+-- Overwrite: Makes it possible to overwrite indices. This is a &quot;fool proof&quot; prevention: it&apos;s realy easy to mess up methods and properties. You will get a warning via this. If you set it to true, it wont warn.
+
+-- The only thing class metatable does is a redirect to ClassPropertyData
+-- This has to be done - to fire __index we need the indices to be nil.
+local ClassMetatable = {} -- Used for both the Class and ClassData tables
+
+function ClassMetatable:__index(Index)
+	--print(&quot;Index operation in a class, index is: &quot;..Index.. &quot;, classname is: &quot;..ClassData[self].ClassName)
+	-- No special rules for indexing a class property
+	-- The only reason is this redirect.
+	-- This function is here to add debug hooks (&quot;There was an index event in the Class .. ClassName .. on Index .. index&quot;)
+	local Extends = ClassData[self].Extends
+	return ClassData[self][Index] or (Extends and ClassLibrary[Extends][Index])
+end
+
+function ClassMetatable:__newindex(Index, Value)
+	--print(&quot;SET operation in a class, index is: &quot;..Index.. &quot;, classname is: &quot;..ClassData[self].ClassName .. &quot; value is: &quot;..tostring(Value))
+	-- Check if locked
+	-- Locked is the ultimate prevention to make sure you don&apos;t edit the classes once you have created them
+	if ClassStates[self.ClassName] and ClassStates[self.ClassName].Locked then
+		-- TODO: Debug messages
+		return
+	elseif Index == &quot;Uncreatable&quot; then
+		if not ClassStates[self.ClassName] then 
+			ClassStates[self.ClassName] = {}
+		end
+		ClassStates[self.ClassName].Uncreatable = true -- expected value 
+		ClassData[self][&quot;Uncreatable&quot;] = true -- For the reference.
+	elseif Index == &quot;Locked&quot; then 
+		if not ClassStates[self.ClassName] then 
+			ClassStates[self.ClassName] = {}
+		end
+		ClassStates[self.ClassName].Locked = true 
+		ClassData[self][&quot;Locked&quot;] = true
+	else
+		if ClassStates[self.ClassName] and ClassStates[self.ClassName].Overwrite and not ClassStates[self.ClassName].Locked then
+			ClassData[self][Index] = Value
+		elseif not ClassData[self][Index] then
+			if ClassStates[self.ClassName] and ClassStates[self.ClassName].Locked then 
+				return -- Class is locked, cannot edit.
+			end 
+			ClassData[self][Index] = Value
+		end
+	end
+end
+
+-- Utility function. Returns the Class which holds the Property
+-- This is the only ugly fix
+ClassMetatable.GetPropertyRoot = function(Class, Property)
+local found, Current, Previous = nil, Class, Class
+repeat
+	found = ClassData[Current][Property]
+	Previous = Current
+	Current = Current.Extends and ClassLibrary[Current.Extends.ClassName]
+until found or not Current
+return Previous
+end
+
+-- Function run on x[y] when the index y is nil in x
+function ObjectMetatable:__index(Index)
+	--print(&quot;Object index: &quot;..Index..&quot; in &quot;..ObjectData[self].ClassName)
+	-- Return either the linked object data (ObjectData) or try to get the &quot;default&quot; value from the Class data. (This index operation finds the dafault in the next)
+	local ClassName = ObjectData[self].ClassName
+	local Property = ObjectData[self][Index] or ClassLibrary[ClassName][Index]
+	if Property then
+		local PUpdate = ObjectData[self][&quot;PropertyUpdate&quot;] or ClassLibrary[ObjectData[self][&quot;ClassName&quot;]][&quot;PropertyUpdate&quot;]
+		local Class = ClassLibrary[ClassName]
+		local PropertyClass = ClassMetatable.GetPropertyRoot(Class, Index)
+		if type(Property) == &quot;table&quot; and ObjectData[self][Index] == nil and Index ~= &quot;Parent&quot; then
+			if Property.Type == &quot;SE_Instance&quot; then
+				local ClassName = Property.ClassName
+				ObjectData[self][Index] = Create( ClassName ) --
+			elseif Property.Type == &quot;Property&quot; then
+				ObjectData[self][Index] = Property:Clone()
+			else
+				-- Its a regular table. 2 cases: filled (list-like) or empty
+				local IsFilled = next(Property)
+				if IsFilled then
+					local New = {}
+					local Meta = {}
+					Meta.__index = Property
+					Property = New -- Make sure it returns our link table, not the real table.
+					setmetatable(New, Meta)
+					ObjectData[self][Index] = New -- Replace it with our link table
+				else
+					-- Just create a new empty table.
+					Property = {}
+					ObjectData[self][Index] = Property
+				end
+			end
+		end
+		if PUpdate and ClassPropertyData[PropertyClass] and ClassPropertyData[PropertyClass][Index] and ClassPropertyData[PropertyClass][Index].Update then
+			return PUpdate(self, Index) -- Manual method call
+		end
+
+		return Property
+	else -- Hrm. The thing we are trying to find is probably NOT a Property, but a Child!
+		--print(&quot;!!childindex&quot;)
+		local Children = ObjectChildData[self]
+		--print(Children)
+		return (Children and Children[Index] and Children[Index][1]) -- Return the first child if available
+	end
+end
+
+-- Utility function. Remove Child from the Child Table of Parent (This block of code is used twice, to save lines, this funcion is made)
+ObjectMetatable.RemoveChild = function(Child, Parent)
+	local ChildTable = ObjectChildData[Parent][Child.Name]
+	-- Remove the reference to this object on the &quot;old parent&quot;
+	if #ChildTable == 1 then
+		ObjectChildData[Parent][Child.Name] = nil
+	else
+		local found
+		for i = 1, #ChildTable do
+			if ChildTable[i] == Child then
+				found = i
+				break
+			end
+		end
+		table.remove(ChildTable, found)
+	end
+end
+
+-- Function run on x[y] = z when the index y is nil in x
+function ObjectMetatable:__newindex(Index, Value)
+	if Value == nil then
+		return
+	end
+	--print(&quot;Object SET: &quot;..Index..&quot; in &quot;..ObjectData[self].ClassName.. &quot; value is &quot;..tostring(Value))
+	if Index == &quot;Parent&quot; then
+		--print(&quot;! parent loop, parentx = &quot;.. Value.Type, self == System, Value.Type and (not (self == System)), Value.Type and true)
+		if Value.Type and (not (self == System)) then
+		--print(&quot;! in block!?&quot;)
+			if self.Parent then
+				ObjectMetatable.RemoveChild(self, self.Parent)
+			end
+			--print(type(Value), Value.Type, &quot;FFFFTHIS&quot;, type(Value) == &quot;table&quot;, Value.Type == &quot;SE_Class&quot;, (type(Value) == &quot;table&quot; and (Value.Type == &quot;SE_Class&quot;)))
+			if (type(Value) == &quot;table&quot; and (Value.Type == &quot;SE_Class&quot;)) then
+				ObjectData[self].Parent = Value
+				if ObjectChildData[Value] == nil then
+					ObjectChildData[Value] = {}
+				end
+				if ObjectChildData[Value][self.Name] == nil then
+					ObjectChildData[Value][self.Name] = {}
+				end
+				--print(&quot;!!!childadddddddd complete&quot;)
+				table.insert(ObjectChildData[Value][self.Name], self)
+			end
+		else
+			-- Not an SE_Class or SYSTEM
+			return
+		end
+	elseif Index == &quot;Name&quot; then
+		-- This is tricky. The children can be found via it&apos;s name, so changing the name will get problems if we don&apos;t change some things.
+		-- Find the child table in the parent
+		if self.Parent then
+			ObjectMetatable.RemoveChild(self, self.Parent)
+			if ObjectChildData[self.Parent][Value] == nil then
+				ObjectChildData[self.Parent][Value] = {}
+			end
+			table.insert(ObjectChildData[self.Parent][Value], self)
+		end
+		ObjectData[self].Name = Value
+	elseif Index == &quot;Extends&quot; then
+		if type(Value) == &quot;table&quot; then
+			local PropRoot = ClassMetatable.GetPropertyRoot(ClassLibrary[self.ClassName], Value)
+			if ClassPropertyData[PropRoot] and ClassPropertyData[PropRoot][Value] and not ClassPropertyData[PropRoot][Value].ReadOnly then
+				ObjectData[self][Index] = Value.ClassName
+			end
+		end
+	elseif Index == &quot;ClassName&quot; or Index == &quot;Type&quot; then
+		-- No. Just no. Watcha doing, changing the classname? Hax.
+		return -- Get out of here, right now
+	else
+		-- Only check we need here is the check to see if the value is not read Only
+		local PropRoot = ClassMetatable.GetPropertyRoot(ClassLibrary[self.ClassName], Value)
+		local Block = ClassPropertyData[PropRoot] and ClassPropertyData[PropRoot][Value] and not ClassPropertyData[PropRoot][Value].ReadOnly
+		if not Block  then
+			--print(&quot;passed test, set&quot;)
+			ObjectData[self][Index] = Value
+		end
+	end
+end
+
+-- Mode. We dont want this here.
+ObjectMetatable.__mode = nil
+ObjectMetatable.__metatable = true -- We want the metatables to be private.
+
+-- Fired once the classes is called
+function ObjectMetatable:__call(...)
+	if self.Call then
+		return self:Call(...)
+	end
+end
+
+-- Fired once tostring(Class), or in the regular print.
+function ObjectMetatable:__tostring()
+	if self.ToString then
+		return self:ToString()
+	else
+		return self.Name
+	end
+end
+
+-- Fired once #Class
+function ObjectMetatable:__len()
+	if self.Length then
+		return self:Length()
+	end
+end
+
+-- WILL NOT BE FIRED ON ROBLOX EVER
+-- Fired once the userdata gets garbage collected.
+-- That only happens when there are no references to the object.
+-- This could be used on some kind of Destroy callback
+--[[
+function ObjectMetatable:__gc()
+
+end --]]
+
+-- Fired once -Class
+function ObjectMetatable:__unm()
+	if self.Unary then
+		return self:Unary()
+	end
+end
+
+-- In following arithmetic metatmethods, x can be anything.
+-- Fired once Class + x
+function ObjectMetatable:__add(other)
+	if self.Add then
+		return self:Add(other)
+	end
+end
+
+-- Fired once Class - x
+function ObjectMetatable:__sub(other)
+	if self.Substract then
+		return self:Substract(other)
+	end
+end
+
+-- Fired once Class * x
+function ObjectMetatable:__mul(other)
+	if self.Multiply then
+		return self:Multiply(other)
+	end
+end
+
+-- Fired once Class / x
+function ObjectMetatable:__div(other)
+	if self.Divide then
+		return self:Divide(other)
+	end
+end
+
+-- Fired once Class % x (modulo)
+function ObjectMetatable:__mod(other)
+	if self.Mod then
+		return self:Mod(other)
+	end
+end
+
+-- Fired once Class ^ x
+function ObjectMetatable:__pow(other)
+	if self.Pow then
+		return self:Pow(other)
+	end
+end
+
+-- Fired once Class .. x
+function ObjectMetatable:__concat(other)
+	if self.Concentate then
+		return self:Concentate(other)
+	end
+end
+
+-- Fired once Class == other
+function ObjectMetatable:__eq(other)
+	if self.Equal then
+		return self:Equal(other)
+	end
+end
+
+-- Fired once Class &lt;= other OR Class &gt;= other
+function ObjectMetatable:__le(other)
+	if self.LSE then -- Larger or Smaller or Equal
+		return self:LSE(other)
+	end
+end
+
+-- Fired once Class &lt; other OR Class &gt; other
+function ObjectMetatable:__lt(other)
+	if self.LS then -- Larger or Smaller
+		return self:LS(other)
+	end
+end
+
+-- Global Help Functions with limited ClassLibrary access (indirect)
+ClassHelper = {}
+
+ClassHelper.GetClassVariables = function(ClassName, var)
+local Root = ClassLibrary[ClassName]
+local Out =  var or {}
+for i,v in pairs(ClassData[Root]) do
+	table.insert(Out, i)
+end
+if ClassData[Root].Extends then
+	ClassHelper.GetClassVariables(ClassData[Root].Extends, Out)
+end
+return Out
+end
+
+function ClassHelper.ChangeClassState(Class, State, Value) -- Class is a string
+local Class = ClassLibrary[Class]
+local StateList = ClassStates[Class]
+local SPossible = {Uncreatable = true, Overwrite = true, Locked = true, CreateLimit = true}
+if SPossible[State] then
+	if not StateList.Locked then
+		StateList[State] = Value
+	end
+end
+end
+
+-- Because some base functions need to have direct access to the &quot;secured&quot;/hidden tables, the SE_Instance (root of everything) is located here.
+
+local SE_Instance = {}
+
+SE_Instance.Name = &quot;Instance&quot;
+SE_Instance.Parent = nil
+SE_Instance.ClassName = &quot;SE_Instance&quot;
+SE_Instance.Archivable = true
+SE_Instance.Extends = nil
+SE_Instance.Type = &quot;SE_Instance&quot;
+
+function SE_Instance:ClearAllChildren()
+	for i,v in pairs(SE_Instance:GetChilden()) do
+		v:Destroy()
+	end
+end
+
+function SE_Instance:Clone()
+	local new = Create( self.ClassName )
+	--for _, Property in pairs(ClassHelper.GetClassVariables(self.ClassName)) do
+	--	new[Property] = (not self.Property == ClassData[ClassLibrary[self.ClassName]][Property] or nil) and self[Property]
+---end
+	for i,v in pairs(ObjectData[self]) do
+		new[i] = v
+	end
+	return new
+end
+
+function SE_Instance:Destroy()
+	-- Why cant we blow it up using gc?
+	for _, Property in pairs(ClassHelper.GetClassVariables(self.ClassName)) do
+		self[Property] = nil
+	end
+	for i,v in pairs(self:GetChildren()) do
+		v:Destroy()
+	end
+end
+
+function SE_Instance:FindFirstChild(name, recursive)
+	local found
+	if ObjectData[self] and ObjectData[self][name] then
+		return ObjectData[self][name][1]
+	elseif recursive then
+		for i,v in pairs(self:GetChildren()) do
+			found = v:FindFirstChild(name, true)
+			if found then
+				break
+			end
+		end
+	end
+	return found
+end
+
+function SE_Instance:GetChildren()
+	--print(&quot;Call GC&quot;)
+	local ChildList = {}
+	if ObjectChildData[self] then 
+	for ChildName,Children in pairs(ObjectChildData[self]) do
+		for i, Child in pairs(Children) do
+			table.insert(ChildList, Child)
+		end
+	end
+	end
+	return ChildList
+end
+
+function SE_Instance:GetFullName()
+	local str = self.Name
+	local curr = self
+	if curr == System then
+		return str
+	end
+	repeat
+		curr = curr.Parent
+		str = curr.Name..&quot;.&quot;..str
+	until curr == System or not curr
+	return str
+end
+
+function SE_Instance:IsA(ClassName)
+	if self.ClassName == ClassName then
+		return true
+	else
+		local found
+		local curr = ClassLibrary[self.ClassName]
+		repeat
+			curr = curr.Extends
+			if curr == ClassName then
+				return true
+			end
+		until curr.Extends == nil
+	end
+	return false
+end
+
+function SE_Instance:IsAncestorOf(class)
+	local curr = class
+	if curr.Parent == self then
+		return true
+	end
+	repeat
+		curr = curr.Parent
+		if curr.Parent == self then
+			return true
+		end
+	until curr.Parent == nil
+	return false
+end
+
+function SE_Instance:IsDescendantOf(class)
+	return class:IsAncestorOf(self)
+end
+
+function SE_Instance:WaitForChild(Name)
+	repeat wait() until self:FindFirstChild(Name)
+	return self:FindFirstChild(Name)
+end
+
+-- Todo: Import SE_Event and
+
+--[[AncestryChanged
+Changed
+ChildAdded
+ChildRemoved
+DescendantRemoving
+--]]
+
+function CreateClass(ClassName, ClassBase)
+	local Class = ClassBase
+	ClassData[Class] = {}
+	ClassData[Class].Extends = ClassBase.Extends or &quot;SE_Instance&quot;
+	if ClassName == &quot;SE_Instance&quot; then
+		ClassData[Class].Extends = nil
+	end
+	if type(ClassData[Class].Extends) == &quot;table&quot; then
+		ClassData[Class].Extends = ClassData[Class].Extends.ClassName
+	end
+	local DataTable = ClassData[Class]
+	for i,v in pairs(ClassBase) do
+		DataTable[i] = v
+		ClassBase[i] = nil
+	end
+	ClassData[Class] = DataTable
+	DataTable.Type = &quot;SE_Class&quot;
+	ClassData[Class].ClassName = ClassName
+	setmetatable(Class, ClassMetatable)
+	Class.__metatable = true
+	ClassLibrary[ClassName] = Class
+	return Class
+end
+
+function Create(ClassName, Parent)
+	if ClassStates[ClassName] and ClassStates[ClassName].Uncreatable then 
+		return -- class is uncretable.
+	end 
+	if ClassLibrary[ClassName] then
+		if ClassStates[ClassName] and ClassStates[ClassName].CreateLimit then 
+			ClassStates[ClassName].CreateLimit = ClassStates[ClassName].CreateLimit - 1
+			if ClassStates[ClassName].CreateLimit &lt; 0 then 
+				return  -- Class has completed it&apos;s max creatins
+			end			
+		end
+		local Object = {}
+		setmetatable(Object, ObjectMetatable)
+		ObjectData[Object] = {ClassName = ClassName, Name = ClassName} -- Reserve a table.
+		if Parent then
+			Object.Parent = Parent
+		end
+		if Object.Constructor then
+			Object:Constructor()
+		end
+		return Object
+	end
+end
+
+function Extends(ClassName, NewClassName) -- Bla = Extends(SE_Instance, &quot;Bla&quot;)
+local Name = ClassName
+if type(ClassName) == &quot;table&quot; then
+	Name = ClassName.ClassName
+end
+local O = {}
+O.Extends = Name
+return CreateClass(NewClassName, O)
+end
+
+CreateClass(&quot;SE_Instance&quot;, SE_Instance)
+</ProtectedString>
+          <string name="Name">SE_Class</string>
+        </Properties>
+      </Item>
+      <Item class="Script">
+        <Properties>
+          <ProtectedString name="Source">-- This file loads every class of for a Client --
+
+-- To make sure everything WORKS - ALWAYS Import the Default classes
+
+-- // Default Classess -- \\
+
+Import &quot;SE_ReleaseData&quot; -- Contains important release data (or not)
+Import &quot;SE_Import&quot; -- Update the small Import function with a better one
+Import &quot;SE_Class&quot; -- Load the Class system 
+Import &quot;SE_System&quot; -- Setup the System object
+Import &quot;SE_Enum&quot; -- Load enums
+Import &quot;SE_Property&quot; -- Load properties
+Import &quot;SE_Event&quot; -- Load the special Event property 
+
+loaddone() -- Call the load done report function, located in the ReleaseData
+loaddone = nil
+
+-- // User Classes -- \\</ProtectedString>
+          <string name="Name">SE_Client</string>
+        </Properties>
+      </Item>
+      <Item class="Script">
+        <Properties>
+          <ProtectedString name="Source">local SE_EnumBase = {}
+
+local EnumMetatable = {} -- Basic redirects
+
+function EnumMetatable:__tostring()
+	return self.Name
+end
+
+function CreateEnum(EnumName, EnumData)
+	if type(EnumName) == &quot;string&quot; and type(EnumData) == &quot;table&quot; then
+		SE_EnumBase[EnumName] = {}
+		for i,v in pairs(EnumData) do
+			print(v)
+			local new = {Name = v, Type = &quot;SE_Enum&quot;}
+			setmetatable(new, EnumMetatable)
+			SE_EnumBase[EnumName][v] = new
+		end
+	end
+end
+
+SE_Enum = {}
+
+-- Yay redirect functions
+
+local Tracer = {} -- Enum tracer function - temporary
+Tracer.__metatable = true -- NO we don&apos;t want you to getmetatable
+function Tracer:__index(Index)
+	return SE_EnumBase[self.root][Index]
+end
+
+function Tracer:__newindex()
+	return
+end
+
+local Meta = {}
+function Meta:__index(Index)
+	local Get = SE_EnumBase[Index]
+	local ETrace = {root=Index}
+	return setmetatable(ETrace, Tracer)
+end
+
+Meta.__metatable = true
+Meta.__newindex = function() return end
+
+setmetatable(SE_Enum, Meta)</ProtectedString>
+          <string name="Name">SE_Enum</string>
+        </Properties>
+      </Item>
+      <Item class="Script">
+        <Properties>
+          <ProtectedString name="Source">local Event = {} 
+
+Event.Disabled = false 
+
+function Event:connect(func)
+	if not self.CallList then 
+		self.CallList = {}
+	end 
+	local Signal = {}
+	function Signal:Disconnect()
+		for i,v in pairs(self.CallList) do 
+			if v == func then 
+				table.remove(self.CallList, i)
+				break 
+			end 
+		end 
+	end 
+	table.insert(self.CallList, func)
+	return Signal
+end 
+
+function Event:Disable()
+	self.Disabled = true 
+end 
+
+function Event:Enable()
+	self.Disabled = false 
+end 
+
+function Event:DisconnectAll()
+	if self.CallList then 
+		self.CallList = {}
+	end 
+end
+
+function Event:Fire(...)
+	if not self.Disabled then 
+		for i,v in pairs(self.CallList or {}) do
+			local arglist = {...} -- What the heck lua syntax!? Y U NO PASS DEM
+			delay(0, function() v(unpack(arglist)) end)
+		end
+	end 
+end 
+
+RegisterNewProperty(&quot;Event&quot;, Event)
+
+function CreateEvent(Class, PropName) -- Used for backwards compatibility
+	local new = CreateProperty(&quot;Event&quot;)
+	Class[PropName] = new 
+	return new
+end </ProtectedString>
+          <string name="Name">SE_Event</string>
+        </Properties>
+      </Item>
+      <Item class="Script">
+        <Properties>
+          <ProtectedString name="Source">function Import(Name)
+	local CallFrom = &quot;SurvivalEngine&quot;
+		
+	local function Spider(root, Name)
+		if not (root:FindFirstChild(&quot;Include&quot;) and root.Include:FindFirstChild(CallFrom)) then
+			return
+		end			
+		local find = Name
+		-- Start name finding loop &quot;Class/Client/Game/Player&quot;
+		for match in string.gmatch(Name, &quot;[^/]+&quot;) do 
+			Name = match
+			root = root.Include[CallFrom]:FindFirstChild(match)
+			if not root then
+				return
+			end
+		end
+		return root
+	end
+
+	local Spy = {game.Lighting, game.ServerScriptService, game.ServerStorage}
+	local root 
+	for _, SpyDir in pairs(Spy) do
+		print(SpyDir.Name)
+		root = Spider(SpyDir, Name)
+		print(root)
+		if root then
+			break
+		end
+	end
+	print(root, &quot;loader&quot;)
+
+	if root then 
+		local Function, Data = loadstring(root.Value)
+		if Data then 
+			print(&quot;ERR: &quot;..Data)
+			return
+		end
+		return Function()
+	end	
+end</ProtectedString>
+          <string name="Name">SE_Import</string>
+        </Properties>
+      </Item>
+      <Item class="Script">
+        <Properties>
+          <ProtectedString name="Source">-- TODO: Add a &quot;property already exists&quot; Same for classes
+
+local PropertyMeta = {}
+
+local PropertyLibrary = {}
+
+local DefaultProperty = {}
+
+function DefaultProperty:Clone()
+	local New = CreateProperty(self.PropertyName)
+	for i,v in pairs(self) do
+		New[i] = v
+	end
+	return New
+end
+
+function PropertyMeta:__index(Index)
+	return rawget(PropertyLibrary[rawget(self, &quot;PropertyName&quot;)],Index) or rawget(PropertyLibrary[rawget(self, &quot;PropertyName&quot;)],&quot;Extends&quot;) and PropertyLibrary[rawget(PropertyLibrary[rawget(self, &quot;PropertyName&quot;)],&quot;Extends&quot;)][Index]
+end
+
+function PropertyMeta:__newindex(Value, Index)
+	if Value == &quot;PropertyName&quot; or Value == &quot;Extends&quot; then
+		-- No, no, no.
+		return
+	else
+	rawset(self, Value, Index)
+	end
+end
+
+PropertyMeta.__metatable = true -- No, we dont want you messing with our metatables!
+
+function RegisterNewProperty(PropertyName, PropertyData)
+	PropertyData.Type = &quot;Property&quot;
+	PropertyData.PropertyName = PropertyName
+	if not PropertyData.Extends and PropertyName ~= &quot;DefaultProperty&quot; then
+		PropertyData.Extends = &quot;DefaultProperty&quot;
+	end
+	if type(PropertyData.Extends) == &quot;table&quot; then
+		PropertyData.Extends = PropertyData.Extends.PropertyName
+	end
+	setmetatable(PropertyData, PropertyMeta)
+	PropertyLibrary[PropertyName] = PropertyData
+end
+
+RegisterNewProperty(&quot;DefaultProperty&quot;, DefaultProperty)
+
+function CreateProperty(PropertyName)
+	local Property = {}
+	Property.PropertyName = PropertyName
+	Property.Type = &quot;Property&quot;
+	return setmetatable(Property, PropertyMeta)
+end</ProtectedString>
+          <string name="Name">SE_Property</string>
+        </Properties>
+      </Item>
+      <Item class="Script">
+        <Properties>
+          <ProtectedString name="Source">local SE_Version_Flags = {
+	Release = true, -- Okay to use in games
+	Debug_Data = true, -- There is debug garbage hanging around (debug messages)
+	Version = &quot;V0.991&quot;, -- Version number. Closing in on v1!
+}
+
+loaddone = function()
+print(&quot;SE has done loading. The current version is: &quot;..SE_Version_Flags.Version..&quot;!&quot;)
+end </ProtectedString>
+          <string name="Name">SE_ReleaseData</string>
+        </Properties>
+      </Item>
+      <Item class="Script">
+        <Properties>
+          <ProtectedString name="Source">-- This file loads every class of for the Server --
+
+-- To make sure everything WORKS - ALWAYS Import the Default classes
+
+-- // Default Classess -- \\
+
+Import &quot;SE_ReleaseData&quot; -- Contains important release data (or not)
+Import &quot;SE_Import&quot; -- Update the small Import function with a better one
+Import &quot;SE_Class&quot; -- Load the Class system 
+Import &quot;SE_System&quot; -- Setup the System object
+Import &quot;SE_Enum&quot; -- Load enums
+Import &quot;SE_Property&quot; -- Load properties
+Import &quot;SE_Event&quot; -- Load the special Event property 
+
+loaddone() -- Call the load done report function, located in the ReleaseData
+loaddone = nil
+
+-- // User Classes -- \\</ProtectedString>
+          <string name="Name">SE_Server</string>
+        </Properties>
+      </Item>
+      <Item class="Script">
+        <Properties>
+          <ProtectedString name="Source">System = Create &quot;SE_Instance&quot;
+
+System.Name = &quot;System&quot;</ProtectedString>
+          <string name="Name">SE_System</string>
+        </Properties>
+      </Item>
+    </Item>
+  </Item>
+</roblox>

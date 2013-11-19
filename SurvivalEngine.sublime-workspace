@@ -51,7 +51,7 @@
 			"file": "Import/SE_Event.lua",
 			"settings":
 			{
-				"buffer_size": 976,
+				"buffer_size": 975,
 				"line_ending": "Windows"
 			}
 		},
@@ -75,7 +75,7 @@
 			"file": "Import/SE_Enum.lua",
 			"settings":
 			{
-				"buffer_size": 1016,
+				"buffer_size": 954,
 				"line_ending": "Windows"
 			}
 		},
@@ -197,6 +197,10 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"Overwrite",
+			"SE_Instance",
+			"ClassHelper",
+			"extends",
 			"output",
 			"Property",
 			"Overwrite",
@@ -231,6 +235,7 @@
 	"groups":
 	[
 		{
+			"selected": 3,
 			"sheets":
 			[
 				{
@@ -245,8 +250,8 @@
 						"selection":
 						[
 							[
-								0,
-								16252
+								3050,
+								3059
 							]
 						],
 						"settings":
@@ -255,7 +260,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 7173.0,
+						"translation.y": 4725.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -318,15 +323,15 @@
 					"file": "Import/SE_Event.lua",
 					"settings":
 					{
-						"buffer_size": 976,
+						"buffer_size": 975,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								976,
-								0
+								316,
+								316
 							]
 						],
 						"settings":
@@ -335,7 +340,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 135.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -343,7 +348,7 @@
 			]
 		},
 		{
-			"selected": 5,
+			"selected": 2,
 			"sheets":
 			[
 				{
@@ -358,8 +363,8 @@
 						"selection":
 						[
 							[
-								57,
-								57
+								152,
+								138
 							]
 						],
 						"settings":
@@ -368,7 +373,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 90.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -386,7 +391,7 @@
 						[
 							[
 								1280,
-								0
+								1280
 							]
 						],
 						"settings":
@@ -405,15 +410,15 @@
 					"file": "Import/SE_Enum.lua",
 					"settings":
 					{
-						"buffer_size": 1016,
+						"buffer_size": 954,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								691,
-								691
+								137,
+								138
 							]
 						],
 						"settings":
@@ -446,7 +451,8 @@
 						"settings":
 						{
 							"syntax": "Packages/Lua Dev/Lua.tmLanguage",
-							"translate_tabs_to_spaces": false
+							"tab_size": 8,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
 						"translation.y": 161.0,
