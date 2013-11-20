@@ -2,10 +2,10 @@ local InputService = {}
 
 InputService.KeyReg = {} -- key:byte() = IsUp [bool], time [double]
 
-self.Button1IsDown = false
-self.Button2IsDown = false
-self.Button1LastEventTime = tick()
-self.Button2LastEventTime = tick()
+InputService.Button1IsDown = false
+InputService.Button2IsDown = false
+InputService.Button1LastEventTime = tick()
+InputService.Button2LastEventTime = tick()
 
 function InputService:Constructor()
 	Mouse.KeyDown:connect(function(k) self:KeyDown(k) end)
@@ -109,7 +109,7 @@ end
 
 CreateClass("InputService", InputService)
 
--- Create it as service of game
+-- Create it as service of System
 
 local IS = Create "InputService"
 IS.Name = "InputService"
