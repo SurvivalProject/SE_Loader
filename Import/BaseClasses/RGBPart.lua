@@ -8,7 +8,7 @@ function RGBPart:Constructor()
 	mesh.Scale = new.Size
 	new.Changed:connect(function(s) 
 		if s == "Size" then
-			mesh.Scale = new.Size
+			mesh.Scale = new.Size*Vector3.new(2,2,2)
 		end
 	end)
 	self.Part = new	
