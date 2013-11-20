@@ -9,12 +9,19 @@ What?
 ---
 A small feature overview:
 1.Classes system which supports Inheritance, special non-primitive Properties. It also supports cloning and adds hooks to other operations.
+
 2.System variable which is a Child/Parent-like data hierachy
+
 3.Every Class extends a base class which has every "normal" Roblox Method in it
+
 4.You can create events - which you can :connect and :disconnect.
+
 5.Enums are also available to use
-6.A watertight system: Users can never ever get direct access to classes or objects.
+
+6.A waterproofed system: Users can never ever get direct access to classes or objects.
+
 7.A very creative way of loading the system - A script of only 8 lines is needed, which will load everything for you.
+
 8.You can define classes and scripts in seperate scripts - they will all be loaded at once, but you have a much better overview like his.
 
 License 
