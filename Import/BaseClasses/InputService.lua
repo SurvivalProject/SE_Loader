@@ -56,7 +56,7 @@ function InputService:KeyIsDown(key)
 end
 
 function InputService:KeyIsUp(key)
-	return not InputService:KeyIsDown(key)
+	return not self:KeyIsDown(key)
 end
 
 function InputService:KeyIsDownFor(key, time)
