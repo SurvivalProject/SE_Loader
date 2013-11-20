@@ -1,18 +1,20 @@
-<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
-	<External>null</External>
-	<External>nil</External>
-	<Item class="Model">
-		<Properties>
-<string name="Name">Include</string>
-		</Properties>
-<Item class="Model">
-		<Properties>
-<string name="Name">Source</string>
-		</Properties>
-<Item class="Script">
-			<Properties>
-<string name="Name">SE_Class</string>
-<ProtectedString name="Source">-- Set up initial registers
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" version="4" xsi:noNameSpaceSchemaLocation="http://www.roblox.com/roblox.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Item class="Model">
+    <Properties>
+      <string name="Name">Include</string>
+    </Properties>
+    <Item class="Model">
+      <Properties>
+        <string name="Name">SurvivalEngine</string>
+      </Properties>
+    </Item>
+    <Item class="Model">
+      <Properties>
+        <string name="Name">Source</string>
+      </Properties>
+      <Item class="Script">
+        <Properties>
+          <ProtectedString name="Source">-- Set up initial registers
 -- Object metatable will store all functions which have to do with created objects
 local ObjectMetatable = {} --newproxy(true); Newproxy&apos;s ain&apos;t gonna work for now.
 local ClassPropertyData = {} -- Holds &quot;flags&quot; on access properties
@@ -99,10 +101,10 @@ function ObjectMetatable:__index(Index)
 		local Class = ClassLibrary[ClassName]
 		local PropertyClass = ClassMetatable.GetPropertyRoot(Class, Index)
 		if type(Property) == &quot;table&quot; and ObjectData[self][Index] == nil and Index ~= &quot;Parent&quot; then
-			if Property.Type == &quot;SE_Instance&quot; then
+			if Property.__se_type == &quot;SE_Instance&quot; then
 				local ClassName = Property.ClassName
 				ObjectData[self][Index] = Create( ClassName ) --
-			elseif Property.Type == &quot;Property&quot; then
+			elseif Property.__se_type == &quot;Property&quot; then
 				ObjectData[self][Index] = Property:Clone()
 			else
 				-- Its a regular table. 2 cases: filled (list-like) or empty
@@ -160,13 +162,13 @@ function ObjectMetatable:__newindex(Index, Value)
 	--print(&quot;Object SET: &quot;..Index..&quot; in &quot;..ObjectData[self].ClassName.. &quot; value is &quot;..tostring(Value))
 	if Index == &quot;Parent&quot; then
 		--print(&quot;! parent loop, parentx = &quot;.. Value.Type, self == System, Value.Type and (not (self == System)), Value.Type and true)
-		if Value.Type and (not (self == System)) then
+		if Value.__se_type and (not (self == System)) then
 		--print(&quot;! in block!?&quot;)
 			if self.Parent then
 				ObjectMetatable.RemoveChild(self, self.Parent)
 			end
 			--print(type(Value), Value.Type, &quot;FFFFTHIS&quot;, type(Value) == &quot;table&quot;, Value.Type == &quot;SE_Class&quot;, (type(Value) == &quot;table&quot; and (Value.Type == &quot;SE_Class&quot;)))
-			if (type(Value) == &quot;table&quot; and (Value.Type == &quot;SE_Class&quot;)) then
+			if (type(Value) == &quot;table&quot; and (Value.__se_type == &quot;SE_Class&quot;)) then
 				ObjectData[self].Parent = Value
 				if ObjectChildData[Value] == nil then
 					ObjectChildData[Value] = {}
@@ -199,7 +201,7 @@ function ObjectMetatable:__newindex(Index, Value)
 				ObjectData[self][Index] = Value.ClassName
 			end
 		end
-	elseif Index == &quot;ClassName&quot; or Index == &quot;Type&quot; then
+	elseif Index == &quot;ClassName&quot; or Index == &quot;__se_type&quot; then
 		-- No. Just no. Watcha doing, changing the classname? Hax.
 		return -- Get out of here, right now
 	else
@@ -362,7 +364,7 @@ SE_Instance.Parent = nil
 SE_Instance.ClassName = &quot;SE_Instance&quot;
 SE_Instance.Archivable = true
 SE_Instance.Extends = nil
-SE_Instance.Type = &quot;SE_Instance&quot;
+SE_Instance.__se_type = &quot;SE_Instance&quot;
 
 function SE_Instance:ClearAllChildren()
 	for i,v in pairs(SE_Instance:GetChilden()) do
@@ -496,7 +498,7 @@ function CreateClass(ClassName, ClassBase)
 		ClassBase[i] = nil
 	end
 	ClassData[Class] = DataTable
-	DataTable.Type = &quot;SE_Class&quot;
+	DataTable.__se_type = &quot;SE_Class&quot;
 	ClassData[Class].ClassName = ClassName
 	setmetatable(Class, ClassMetatable)
 	Class.__metatable = true
@@ -540,11 +542,12 @@ end
 
 CreateClass(&quot;SE_Instance&quot;, SE_Instance)
 </ProtectedString>
-			</Properties>
-		</Item><Item class="Script">
-			<Properties>
-<string name="Name">SE_Client</string>
-<ProtectedString name="Source">-- This file loads every class of for a Client --
+          <string name="Name">SE_Class</string>
+        </Properties>
+      </Item>
+      <Item class="Script">
+        <Properties>
+          <ProtectedString name="Source">-- This file loads every class of for a Client --
 
 -- To make sure everything WORKS - ALWAYS Import the Default classes
 
@@ -562,11 +565,12 @@ loaddone() -- Call the load done report function, located in the ReleaseData
 loaddone = nil
 
 -- // User Classes -- \\</ProtectedString>
-			</Properties>
-		</Item><Item class="Script">
-			<Properties>
-<string name="Name">SE_Enum</string>
-<ProtectedString name="Source">local SE_EnumBase = {}
+          <string name="Name">SE_Client</string>
+        </Properties>
+      </Item>
+      <Item class="Script">
+        <Properties>
+          <ProtectedString name="Source">local SE_EnumBase = {}
 
 local EnumMetatable = {} -- Basic redirects
 
@@ -579,7 +583,7 @@ function CreateEnum(EnumName, EnumData)
 		SE_EnumBase[EnumName] = {}
 		for i,v in pairs(EnumData) do
 			print(v)
-			local new = {Name = v, Type = &quot;SE_Enum&quot;}
+			local new = {Name = v, __se_type= &quot;SE_Enum&quot;}
 			setmetatable(new, EnumMetatable)
 			SE_EnumBase[EnumName][v] = new
 		end
@@ -611,11 +615,12 @@ Meta.__metatable = true
 Meta.__newindex = function() return end
 
 setmetatable(SE_Enum, Meta)</ProtectedString>
-			</Properties>
-		</Item><Item class="Script">
-			<Properties>
-<string name="Name">SE_Event</string>
-<ProtectedString name="Source">local Event = {} 
+          <string name="Name">SE_Enum</string>
+        </Properties>
+      </Item>
+      <Item class="Script">
+        <Properties>
+          <ProtectedString name="Source">local Event = {} 
 
 Event.Disabled = false 
 
@@ -666,22 +671,23 @@ function CreateEvent(Class, PropName) -- Used for backwards compatibility
 	Class[PropName] = new 
 	return new
 end </ProtectedString>
-			</Properties>
-		</Item><Item class="Script">
-			<Properties>
-<string name="Name">SE_Import</string>
-<ProtectedString name="Source">function Import(Name)
+          <string name="Name">SE_Event</string>
+        </Properties>
+      </Item>
+      <Item class="Script">
+        <Properties>
+          <ProtectedString name="Source">function Import(Name)
 	local CallFrom = &quot;SurvivalEngine&quot;
 		
 	local function Spider(root, Name)
-		if not (root:FindFirstChild(&quot;Include&quot;) and root.Include:FindFirstChild(CallFrom)) then
+		if root == nil then
 			return
-		end			
+		end
 		local find = Name
 		-- Start name finding loop &quot;Class/Client/Game/Player&quot;
 		for match in string.gmatch(Name, &quot;[^/]+&quot;) do 
 			Name = match
-			root = root.Include[CallFrom]:FindFirstChild(match)
+			root = root:FindFirstChild(match)
 			if not root then
 				return
 			end
@@ -691,9 +697,8 @@ end </ProtectedString>
 
 	local Spy = {game.Lighting, game.ServerScriptService, game.ServerStorage}
 	local root 
-	for _, SpyDir in pairs(Spy) do
-		print(SpyDir.Name)
-		root = Spider(SpyDir, Name)
+	for _, SpyDir in pairs(Spy) do	
+		root = Spider(SpyDir and SpyDir:FindFirstChild(&quot;Include&quot;) and SpyDir.Include:FindFirstChild(CallFrom), Name)
 		print(root)
 		if root then
 			break
@@ -710,11 +715,12 @@ end </ProtectedString>
 		return Function()
 	end	
 end</ProtectedString>
-			</Properties>
-		</Item><Item class="Script">
-			<Properties>
-<string name="Name">SE_Property</string>
-<ProtectedString name="Source">-- TODO: Add a &quot;property already exists&quot; Same for classes
+          <string name="Name">SE_Import</string>
+        </Properties>
+      </Item>
+      <Item class="Script">
+        <Properties>
+          <ProtectedString name="Source">-- TODO: Add a &quot;property already exists&quot; Same for classes
 
 local PropertyMeta = {}
 
@@ -746,7 +752,7 @@ end
 PropertyMeta.__metatable = true -- No, we dont want you messing with our metatables!
 
 function RegisterNewProperty(PropertyName, PropertyData)
-	PropertyData.Type = &quot;Property&quot;
+	PropertyData.__se_type = &quot;Property&quot;
 	PropertyData.PropertyName = PropertyName
 	if not PropertyData.Extends and PropertyName ~= &quot;DefaultProperty&quot; then
 		PropertyData.Extends = &quot;DefaultProperty&quot;
@@ -763,27 +769,29 @@ RegisterNewProperty(&quot;DefaultProperty&quot;, DefaultProperty)
 function CreateProperty(PropertyName)
 	local Property = {}
 	Property.PropertyName = PropertyName
-	Property.Type = &quot;Property&quot;
+	Property.__se_type = &quot;Property&quot;
 	return setmetatable(Property, PropertyMeta)
 end</ProtectedString>
-			</Properties>
-		</Item><Item class="Script">
-			<Properties>
-<string name="Name">SE_ReleaseData</string>
-<ProtectedString name="Source">local SE_Version_Flags = {
+          <string name="Name">SE_Property</string>
+        </Properties>
+      </Item>
+      <Item class="Script">
+        <Properties>
+          <ProtectedString name="Source">local SE_Version_Flags = {
 	Release = true, -- Okay to use in games
 	Debug_Data = true, -- There is debug garbage hanging around (debug messages)
-	Version = &quot;V0.991&quot;, -- Version number. Closing in on v1!
+	Version = &quot;V0.992&quot;, -- Version number. Closing in on v1!
 }
 
 loaddone = function()
 print(&quot;SE has done loading. The current version is: &quot;..SE_Version_Flags.Version..&quot;!&quot;)
 end </ProtectedString>
-			</Properties>
-		</Item><Item class="Script">
-			<Properties>
-<string name="Name">SE_Server</string>
-<ProtectedString name="Source">-- This file loads every class of for the Server --
+          <string name="Name">SE_ReleaseData</string>
+        </Properties>
+      </Item>
+      <Item class="Script">
+        <Properties>
+          <ProtectedString name="Source">-- This file loads every class of for the Server --
 
 -- To make sure everything WORKS - ALWAYS Import the Default classes
 
@@ -801,20 +809,54 @@ loaddone() -- Call the load done report function, located in the ReleaseData
 loaddone = nil
 
 -- // User Classes -- \\</ProtectedString>
-			</Properties>
-		</Item><Item class="Script">
-			<Properties>
-<string name="Name">SE_System</string>
-<ProtectedString name="Source">System = Create &quot;SE_Instance&quot;
+          <string name="Name">SE_Server</string>
+        </Properties>
+      </Item>
+      <Item class="Script">
+        <Properties>
+          <ProtectedString name="Source">System = Create &quot;SE_Instance&quot;
 
 System.Name = &quot;System&quot;</ProtectedString>
-			</Properties>
-		</Item>
-</Item><Item class="Model">
-		<Properties>
-<string name="Name">SurvivalEngine</string>
-		</Properties>
+          <string name="Name">SE_System</string>
+        </Properties>
+      </Item>
+      <Item class="Model">
+        <Properties>
+          <string name="Name">BaseClasses</string>
+        </Properties>
+        <Item class="Script">
+          <Properties>
+            <ProtectedString name="Source">local RGBPart = {}
 
-</Item>
-</Item>
+function RGBPart:Constructor() 
+	local new = Instance.new(&quot;Part&quot;)
+	local mesh = Instance.new(&quot;FileMesh&quot;, new)
+	mesh.TextureId = &quot;http://www.roblox.com/asset/?ID=1361097&quot;
+	mesh.MeshId = &quot;http://www.roblox.com/Asset/?id=9856898&quot;
+	mesh.Scale = new.Size
+	new.Changed:connect(function(s) 
+		if s == &quot;Size&quot; then
+			mesh.Scale = new.Size
+		end
+	end)
+	self.Part = new	
+	self.Mesh = mesh
+end 
+
+function RGBPart:SetColor(r,g,b) 
+	if g == nil and b == nil then 
+		-- take r == Color3
+		self.Mesh.VertexColor = Vector3.new(r.r, r.g, r.b)
+	else 
+		self.Mesh.VertexColor = Vector3.new(r/255,b/255,g/255)
+	end
+end
+
+CreateClass(&quot;RGBPart&quot;, RGBPart)</ProtectedString>
+            <string name="Name">RGBPart</string>
+          </Properties>
+        </Item>
+      </Item>
+    </Item>
+  </Item>
 </roblox>

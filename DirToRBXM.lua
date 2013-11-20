@@ -90,6 +90,6 @@ else
 end
 
 
-file:write(rbxm:str())
+file:write(tostring(rbxm))
 print("ProjectRBXM.rbxm file generated. Hit any key to quit... (took: "..math.floor((os.clock() - _time)*1000 + 0.5).. " ms)")
 io.read()
