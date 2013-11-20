@@ -5,7 +5,7 @@ function RGBPart:Constructor()
 	local mesh = Instance.new("FileMesh", new)
 	mesh.TextureId = "http://www.roblox.com/asset/?ID=1361097"
 	mesh.MeshId = "http://www.roblox.com/Asset/?id=9856898"
-	mesh.Scale = new.Size
+	mesh.Scale = new.Size*Vector3.new(2,2,2)
 	new.Changed:connect(function(s) 
 		if s == "Size" then
 			mesh.Scale = new.Size*Vector3.new(2,2,2)
