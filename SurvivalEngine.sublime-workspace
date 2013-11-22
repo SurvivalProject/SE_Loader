@@ -107,7 +107,7 @@
 			"file": "Import/BaseClasses/InputService.lua",
 			"settings":
 			{
-				"buffer_size": 2701,
+				"buffer_size": 0,
 				"line_ending": "Windows"
 			}
 		},
@@ -116,6 +116,14 @@
 			"settings":
 			{
 				"buffer_size": 1788,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Import/BaseClasses/Client/Globals.lua",
+			"settings":
+			{
+				"buffer_size": 288,
 				"line_ending": "Windows"
 			}
 		},
@@ -428,7 +436,7 @@
 			]
 		},
 		{
-			"selected": 5,
+			"selected": 6,
 			"sheets":
 			[
 				{
@@ -535,7 +543,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 13596.0,
+						"translation.y": 891.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -545,15 +553,15 @@
 					"file": "Import/BaseClasses/InputService.lua",
 					"settings":
 					{
-						"buffer_size": 2701,
+						"buffer_size": 0,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2701,
-								2701
+								0,
+								0
 							]
 						],
 						"settings":
@@ -562,7 +570,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 44.0,
-						"translation.y": 1500.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -595,6 +603,32 @@
 				},
 				{
 					"buffer": 12,
+					"file": "Import/BaseClasses/Client/Globals.lua",
+					"settings":
+					{
+						"buffer_size": 288,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								73,
+								73
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua Dev/Lua.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 13,
 					"file": ".gitignore",
 					"settings":
 					{
