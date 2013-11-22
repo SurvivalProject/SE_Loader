@@ -7,3 +7,5 @@ tan = math.tan
 Backpack = Player.Backpack
 PlayerGui = Player:WaitForChild("PlayerGui")
 Mouse = Player:GetMouse()
+--Resources = Game:GetService("Lighting").Resources
+
