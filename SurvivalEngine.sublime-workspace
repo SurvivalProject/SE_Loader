@@ -4,6 +4,26 @@
 		"selected_items":
 		[
 			[
+				"Respa",
+				"RespawnService"
+			],
+			[
+				"PlayerAdded",
+				"PlayerAddedConnection"
+			],
+			[
+				"Player",
+				"PlayerAddedConnection"
+			],
+			[
+				"Character",
+				"CharacterAdded"
+			],
+			[
+				"Chara",
+				"CharacterAutoLoads"
+			],
+			[
 				"Object",
 				"ObjectMetatable"
 			],
@@ -59,7 +79,7 @@
 			"file": "Import/BaseClasses/RGBPart.lua",
 			"settings":
 			{
-				"buffer_size": 651,
+				"buffer_size": 690,
 				"line_ending": "Windows"
 			}
 		},
@@ -123,7 +143,15 @@
 			"file": "Import/BaseClasses/Client/Globals.lua",
 			"settings":
 			{
-				"buffer_size": 288,
+				"buffer_size": 342,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Import/BaseClasses/Server/RespawnService.lua",
+			"settings":
+			{
+				"buffer_size": 1834,
 				"line_ending": "Windows"
 			}
 		},
@@ -164,6 +192,7 @@
 	},
 	"file_history":
 	[
+		"/C/Users/Jochem/AppData/Local/Roblox/logs/log_D1C95 2013, 11, 21, 2.RobloxStudio.dmp",
 		"/C/Users/Jochem/Documents/GitHub/main/Import/SE_Event.lua",
 		"/C/Users/Jochem/Documents/GitHub/main/DirToRBXM.lua",
 		"/C/Users/Jochem/Documents/GitHub/main/Import/SE_Client.lua",
@@ -384,15 +413,15 @@
 					"file": "Import/BaseClasses/RGBPart.lua",
 					"settings":
 					{
-						"buffer_size": 651,
+						"buffer_size": 690,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								651,
-								651
+								0,
+								0
 							]
 						],
 						"settings":
@@ -436,7 +465,7 @@
 			]
 		},
 		{
-			"selected": 6,
+			"selected": 7,
 			"sheets":
 			[
 				{
@@ -606,15 +635,15 @@
 					"file": "Import/BaseClasses/Client/Globals.lua",
 					"settings":
 					{
-						"buffer_size": 288,
+						"buffer_size": 342,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								73,
-								73
+								0,
+								0
 							]
 						],
 						"settings":
@@ -629,6 +658,33 @@
 				},
 				{
 					"buffer": 13,
+					"file": "Import/BaseClasses/Server/RespawnService.lua",
+					"settings":
+					{
+						"buffer_size": 1834,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1833,
+								1833
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua Dev/Lua.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 585.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 14,
 					"file": ".gitignore",
 					"settings":
 					{
