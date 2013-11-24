@@ -28,4 +28,6 @@ function Import(Name)
 	end		
 end
 
+LOAD_EXTRA_CLASSES = true -- if this is false, only load the SE core files
+
 Import "SE_Client"

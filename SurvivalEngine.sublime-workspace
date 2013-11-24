@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"Get",
+				"GetMagnitude"
+			],
+			[
 				"Respa",
 				"RespawnService"
 			],
@@ -152,6 +156,22 @@
 			"settings":
 			{
 				"buffer_size": 1834,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/Jochem/AppData/Local/Roblox/Plugins/SurvivalCompile.lua",
+			"settings":
+			{
+				"buffer_size": 903,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Import/BaseClasses/SE_Vector.lua",
+			"settings":
+			{
+				"buffer_size": 652,
 				"line_ending": "Windows"
 			}
 		},
@@ -465,7 +485,7 @@
 			]
 		},
 		{
-			"selected": 7,
+			"selected": 9,
 			"sheets":
 			[
 				{
@@ -685,6 +705,59 @@
 				},
 				{
 					"buffer": 14,
+					"file": "/C/Users/Jochem/AppData/Local/Roblox/Plugins/SurvivalCompile.lua",
+					"settings":
+					{
+						"buffer_size": 903,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								903,
+								903
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua Dev/Lua.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 15,
+					"file": "Import/BaseClasses/SE_Vector.lua",
+					"settings":
+					{
+						"buffer_size": 652,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								651,
+								651
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua Dev/Lua.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 16,
 					"file": ".gitignore",
 					"settings":
 					{

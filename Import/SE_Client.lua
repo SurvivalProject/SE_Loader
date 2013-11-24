@@ -12,6 +12,13 @@ Import "SE_Enum" -- Load enums
 Import "SE_Property" -- Load properties
 Import "SE_Event" -- Load the special Event property 
 
+if LOAD_EXTRA_CLASSES then 
+	Import "BaseClasses/RGBPart"
+	Import "BaseClasses/SE_Vector"
+	Import "BaseClasses/Client/Globals"
+	Import "BaseClasses/Client/InputService"
+end 
+
 loaddone() -- Call the load done report function, located in the ReleaseData
 loaddone = nil
 
