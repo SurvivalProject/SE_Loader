@@ -8,5 +8,6 @@ function Cam:GetZoomFocus()
 	return (Camera.Focus.p-Camera.CoordinateFrame.p).magnitude
 end
 
+CreateClass("Cam",Cam)
 
 --Fattycat:  I will be adding more functions in a bit just wanted to start this
