@@ -35,9 +35,10 @@ end
 
 function Event:Fire(...)
 	if not self.Disabled then 
+		local arg = {...} -- No need to re-evaluate the args list for every function.
+		local len = select('#', ...) -- Part of fix (https://github.com/SurvivalProject/SE_Loader/issues/8)
 		for i,v in pairs(self.CallList or {}) do
-			local arglist = {...} -- What the heck lua syntax!? Y U NO PASS DEM
-			delay(0, function() v(unpack(arglist)) end)
+			delay(0, function() v(unpack(arg, 1, len)) end) -- Part of fix (https://github.com/SurvivalProject/SE_Loader/issues/8)
 		end
 	end 
 end 
